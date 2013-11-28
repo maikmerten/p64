@@ -8,7 +8,7 @@ DEFS = system.h globals.h marker.h
 BASELINE =  p64.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o
 
 .c.o:
-	cc $(PFLAGS) -c $*.c 
+	$(CC) $(PFLAGS) -c $*.c
 
 .c.ln:
 	lint -c $*.c 
@@ -19,7 +19,7 @@ clean:
 	rm *.o p64
 
 p64: $(BASELINE)
-	cc $(PFLAGS) $(BASELINE) -lm -o p64
+	$(CC) $(PFLAGS) $(BASELINE) -lm -o p64
 
 p64.o: p64.c $(DEFS)
 codec.o: codec.c $(DEFS)
