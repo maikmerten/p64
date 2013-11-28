@@ -5,7 +5,7 @@ BUG FIXES:
 Predicted motion vectors were not reset properly on the group of
 blocks.  The LastMBA was changed from 11,22 to 10,21.  Also previous
 type was considered.  This is sufficient to make things compatible
-with June 1989 draft.  (if #define VERSION_1.0 is set)
+with June 1989 draft.  (if #define VERSION_1_0 is set)
 
 DOCUMENTATION:
 

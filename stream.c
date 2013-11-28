@@ -27,6 +27,7 @@ This file handles all of the bit-level stream commands.
 
 /*LABEL stream.c */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "globals.h"
 

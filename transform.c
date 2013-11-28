@@ -266,7 +266,7 @@ void CCITTQuantize(matrix,dcqfact,acqfact)
   BEGIN("CCITTQuantize");
   int *mptr;
 
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   dcqfact++;
   acqfact++;
   dcqfact <<=1;
@@ -325,7 +325,7 @@ void CCITTFlatQuantize(matrix,dcqfact,acqfact)
   if (*matrix > 0) {*matrix = (*matrix + dcqfact/2)/ dcqfact;}
   else {*matrix = (*matrix - dcqfact/2)/ dcqfact;}
 
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   acqfact++;
   acqfact <<=1;
   for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
@@ -370,7 +370,7 @@ void ICCITTFlatQuantize(matrix,dcqfact,acqfact)
   int *mptr;
 
   *matrix = *matrix*dcqfact;
-#ifdef VERSION_1.0  
+#ifdef VERSION_1_0
   acqfact++;
   for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
     {
@@ -412,7 +412,7 @@ void ICCITTQuantize(matrix,dcqfact,acqfact)
   BEGIN("ICCITTQuantize");
   int *mptr;
 
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   dcqfact++;
   acqfact++;
   if (*matrix>0) {*matrix = (2* *matrix + 1)*dcqfact;}

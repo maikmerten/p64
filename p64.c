@@ -28,6 +28,8 @@ there is more extensibility than is really necessary.
 
 /*LABEL p64.c */
 
+#include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "globals.h"
 
@@ -179,7 +181,7 @@ extern int MeMWOR[1024];
 
 int ErrorValue=0;
 int Loud=MUTE;
-int Trace=NULL;
+int Trace=0;
 int Verbose=0;
 int ForceCIF=0; /* Forces CIF format - superset will hold any other format */
 

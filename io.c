@@ -24,6 +24,7 @@ io.c
 
 /*LABEL io.c */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "globals.h"
 

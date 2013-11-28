@@ -26,6 +26,7 @@ This file contains most of the marker information.
 
 /*LABEL marker.c */
 
+#include <stdlib.h>
 #include "globals.h"
 #include "marker.h"
 
@@ -105,7 +106,7 @@ void WritePictureHeader()
 
   mputv(PSC_LENGTH,PSC);
   mputv(5,TemporalReference);
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   mputv(13,PType);
   if (ParityEnable)
     {
@@ -146,7 +147,7 @@ void ReadPictureHeader()
 
   TemporalReference = mgetv(5);
 
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   PType = mgetv(13);
   if (mgetb())
     {
@@ -184,11 +185,11 @@ void WriteGOBHeader()
 
   mputv(GBSC_LENGTH,GBSC);
   mputv(4,GRead+1);
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   mputv(6,Type2);
 #endif
   mputv(5,GQuant);
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   if (GSpareEnable)
     {
       mputb(1);
@@ -257,11 +258,11 @@ void ReadGOBHeader()
 {
   BEGIN("ReadGOBHeader");
 
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   Type2 = mgetv(6);
 #endif
   GQuant = mgetv(5);
-#ifdef VERSION_1.0
+#ifdef VERSION_1_0
   if (mgetb())
     {
       GSpareEnable = 1;

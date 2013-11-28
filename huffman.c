@@ -26,6 +26,7 @@ This file contains the Huffman routines.
 
 /*LABEL huffman.c */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "stream.h"
 #include "globals.h"

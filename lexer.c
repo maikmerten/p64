@@ -15,6 +15,10 @@ advertisement of this source code should refer to it as the Portable
 Video Research Group (PVRG) code, and not by any author(s) (or
 Stanford University) name.
 *************************************************************/
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
+
 # include "stdio.h"
 # define U(x) ((x)&0377)
 # define NLSTATE yyprevious=YYNEWLINE
@@ -34,7 +38,7 @@ int yyleng; extern char yytext[];
 int yymorfg;
 extern char *yysptr, yysbuf[];
 int yytchar;
-FILE *yyin ={stdin}, *yyout ={stdout};
+FILE *yyin, *yyout;
 extern int yylineno;
 struct yysvf { 
 	struct yywork *yystoff;
@@ -471,6 +475,9 @@ EFUNC*/
 void initparser()
 {
   char i,**sptr;
+  yyin = stdin;
+  yyout = stdout;
+
   BEGIN NORMAL;
 
   for(i=1,sptr=ReservedWords;**sptr!='\0';i++,sptr++) 
@@ -2122,7 +2129,7 @@ yylook(){
 				}
 # endif
 			yyr = yyt;
-			if ( (int)yyt > (int)yycrank){
+			if ( (intptr_t)yyt > (intptr_t)yycrank){
 				yyt = yyr + yych;
 				if (yyt <= yytop && yyt->verify+yysvec == yystate){
 					if(yyt->advance+yysvec == YYLERR)	/* error transitions */
@@ -2132,7 +2139,7 @@ yylook(){
 					}
 				}
 # ifdef YYOPTIM
-			else if((int)yyt < (int)yycrank) {		/* r < yycrank */
+			else if((intptr_t)yyt < (intptr_t)yycrank) {		/* r < yycrank */
 				yyt = yyr = yycrank+(yycrank-yyt);
 # ifdef LEXDEBUG
 				if(debug)fprintf(yyout,"compressed state\n");
