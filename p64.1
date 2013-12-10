@@ -1,0 +1,218 @@
+.TH P64 1 "14 June 1993"
+.UC 4
+.SH NAME
+p64 \- P64 compression and decompression
+.SH SYNOPSIS
+.B
+p64  [-d [-c]] [-NTSC] [-CIF] [-QCIF]
+.B
+     [-a StartNumber] [-b EndNumber]
+.B
+     [-f FrameRate] [-k FrameskipNumber] [-o] [-p]
+.B
+     [-i MCSearchLimit] [-q Quantization] [-v] [-y]
+.B
+     [-r Target Rate] [-x Target Filesize]
+.B
+     [-s StreamFile] [-z ComponentFileSuffix i]
+.B
+     ComponentFilePrefix1 [ComponentFilePrefix2 ComponentFilePrefix3]
+.br
+.SH DESCRIPTION
+.I p64
+is a telecommunication image sequence compression/decompression
+program that performs CCITT H.261 encoding and decoding.
+.PP
+.SH OPTIONS
+.TP
+.B -NTSC
+indicates that the source frame size for the Luminance component is
+352x240 and for the Chrominance components is 176x120. This is the
+default size.
+.TP
+.B -CIF
+indicates that the source frame size for the Luminance component is
+352x288 and for the Chrominance components is 176x144.
+.TP
+.B -QCIF
+indicates that the source frame size for the Luminance component is
+176x144 and for the Chrominance components is 88x72.
+.TP
+.B -a
+denotes the following value to be the start of the filename index
+[inclusive]. Defaults to 0.
+.TP
+.B -b
+denotes the following value to be the end of the filename index
+[inclusive]. Defaults to 0.
+.TP
+.B -c
+for the decoder, it indicates to save to a CIF style file.  Always
+compatible with QCIF or NTSC modes.
+.TP
+.B -d
+enables the decoder.
+The only options useful for the decoder are the filename specifications;
+the rest of the information is used for encoding.
+.TP
+.B -f
+is the FrameRate, or the number of frames per second. The default
+number is 30 (frames/second), regardless of
+.B -PAL
+or
+.B -NTSC
+mode.
+.TP
+.B -i
+is the diameter of the motion estimation search. The diameter must be
+inclusively between 1 and 31, designating a region from interframe
+only (0,0) search, to full search (+- 15, +- 15).  (Default 15).
+.TP
+.B -k
+is the FrameSkip index, representing the spacing between each frame.
+A value of 1 indicates that every frame is to be transmitted. A value
+of 2 indicates every other frame is to be transmitted. In general, the
+number of transmitted frames per second is the FrameRate divided by
+FrameSkip.
+.TP
+.B -o
+signals that the program interpreter will read the control algorithms
+from the standard input.
+.TP
+.B -p
+enables parity checking for the frames.
+(Disabled under normal compilation for 1992
+CCITT specifications.) This checks the validity of
+the reference frame stores on the decoder end. While the parity is
+correct for this system's encoder and decoder, some parity errors (on
+the least significant bits) can occur in
+.I normal
+operation because of unmatched inverse DCT's between arbitrary encoders and
+decoders.
+.TP
+.B -q
+gives a value for the quantization
+not in the presence of rate control,
+which automatically changes the quantization values.
+If rate control is specified, this parameter gives a value for the
+initial quantization of the first frame (which the program usually
+takes an educated guess at).
+.TP
+.B -r
+specified a rate for the coded stream in bits per second. If this is
+enabled, a buffer model is used to limit the size of the coding
+stream.
+.TP
+.B -s
+specifies the filename to store the coded image. If unspecified it
+defaults to
+.B ComponentFilePrefix0.p64.
+.TP
+.B -v
+designates that quantization decisions are to be written to standard
+output.
+.TP
+.B -x
+gives a target filesize for the compressed stream. This overrides the
+rate option
+.B -r
+, if specified.  Note that the filesize will
+generally be larger than the target filesize because of remaining bits
+in the buffer.
+.TP
+.B -y
+enables the double-precision floating point Reference DCT. The default
+is the Chen DCT.
+.TP
+.B -z
+denotes the component file suffixes in sequential order. For example
+.B
+ -z .y.clr -z .u.clr -z .v.clr
+indicates that the luminance and the two chrominance files
+end with a suffix of
+.B
+\&.y.clr, \&.u.clr,
+and
+.B \&.v.clr,
+in that order. If unspecified, the suffixes
+default to
+.B
+\&.Y, \*.U,\fR
+and
+.B \&.V.
+.TP
+.B ComponentFilePrefix\fIn\fR
+must be specified. In general, the other component files share the
+same prefix and will default to 
+.B ComponentFilePrefix1
+if not explicitly specified. However, in some cases the prefix is what
+changes in the file and we can specify this individually.
+.PP
+.SH EXAMPLES
+To encode a set of raw raster scan YCbCr (also known as digital YUV) files with
+dimension 352x240 Y, 176x120 U,V,
+with labels,
+.B
+hello0.Y hello0.U hello0.V,
+.B
+hello1.Y hello1.U hello1.V,
+.B
+\&...,
+.B
+hello12.Y hello12.U hello12.V
+through the p64 encoder, type
+
+.br
+.B
+p64 -a 0 -b 12 hello -s hello.p64
+.br
+
+This creates the output file 
+.B hello.p64.
+In order to decode such a file into a sequence of image files with
+prefix
+.B goodbye,
+type
+
+.br
+.B
+p64 -d -s hello.p64 goodbye
+.br
+
+The output will be placed in the files
+.B
+goodbye0.Y goodbye0.U goodbye0.V,
+.B
+goodbye1.Y goodbye1.U goodbye1.V,
+.B
+\&...,
+.B
+goodbye12.Y goodbye12.U goodbye12.V.
+These image sequences can be displayed by the
+.I cv
+program.
+The image sequences can also be converted to ppm and back through
+the programs
+.I cyuv2ppm
+and 
+.I ppm2cyuv
+Those utility programs available by anonymous ftp from
+.I havefun.stanford.edu:pub/cv/CVv1.2.1.tar.Z.
+There are more options within an internal program interpreter.
+Please see the accompanying documentation in
+.I doc.ps
+for more details.
+.PP
+.SH FTP
+.I p64
+is available by anonymous ftp from
+.I havefun.stanford.edu:pub/p64/P64v1.2.tar.Z.
+.PP
+.SH BUGS
+Somewhat slower than many commercial implementations.
+Please inform the author at achung@cs.stanford.edu if you have
+such a sequence available or if any bugs are found.
+.PP
+.SH AUTHOR
+.PP
+Andy Hung

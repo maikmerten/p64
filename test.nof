@@ -1,0 +1,28 @@
+/* This program is similar to our own P64 decision making */
+/* except that we only consider mc compensation (without filtering). */
+20 equ X
+21 equ Y
+open 0
+rcl BD
+256 div
+sto X
+rcl DBD
+256 div
+sto Y
+0 sto MTYPE
+rcl VAR 64 lt
+rcl VAROR rcl VAR gt or ifng CHECK:
+2 sto MTYPE
+rcl X 1.0 lt
+rcl X 3.0 lt rcl Y rcl X 0.5 mul gt and or
+rcl Y rcl X 1.1 div gt or
+ifg CHECK:
+5 sto MTYPE
+CHECK: rcl MQUANTENABLE
+ifng END:
+rcl MTYPE
+1 ADD
+sto MTYPE
+END: exit
+close
+printprogram 0

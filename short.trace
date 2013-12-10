@@ -1,0 +1,94 @@
+START>SEQUENCE
+START>Frame: 0
+Total No of Bits:   138588  Bits for Frame:   138588
+MB Attribute Bits:   1650  MV Bits:      0   EOB Bits:   3960
+Y Bits:  123214  U Bits:    3805  V Bits:    5658  Total Bits:  132677
+MV StepSize: 8.000000  MV NumberNonZero: 11.735859  MV NumberZero: 52.264141
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:   330    0    0    0    0    0    0    0    0    0
+Y     Freq:  1320    0    0    0    0    0    0    0    0    0
+UV    Freq:   660    0    0    0    0    0    0    0    0    0
+Comp: 0  MRSNR: 13.72  SNR: 26.18  PSNR: 32.13  MSE: 39.86  Entropy: 6.58
+Comp: 1  MRSNR: 5.00  SNR: 31.98  PSNR: 39.31  MSE: 7.61  Entropy: 3.15
+Comp: 2  MRSNR: 13.42  SNR: 33.87  PSNR: 38.59  MSE: 8.99  Entropy: 3.95
+END>Frame: 0
+START>Frame: 1
+Total No of Bits:   179353  Bits for Frame:    40765
+MB Attribute Bits:   2522  MV Bits:    275   EOB Bits:   1804
+Y Bits:   35067  U Bits:     212  V Bits:     859  Total Bits:   36138
+MV StepSize: 8.000000  MV NumberNonZero: 2.286364  MV NumberZero: 61.713636
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:     7    0  276    0   24    0    0    0   23    0
+Y     Freq:    28    0  753    0    0    0    0    0   74    0
+UV    Freq:    14    0   19    0    0    0    0    0   14    0
+Comp: 0  MRSNR: 13.57  SNR: 26.12  PSNR: 32.07  MSE: 40.34  Entropy: 6.59
+Comp: 1  MRSNR: 4.86  SNR: 31.90  PSNR: 39.24  MSE: 7.74  Entropy: 3.11
+Comp: 2  MRSNR: 13.23  SNR: 33.70  PSNR: 38.42  MSE: 9.35  Entropy: 3.94
+END>Frame: 1
+START>Frame: 2
+Total No of Bits:   212562  Bits for Frame:    33209
+MB Attribute Bits:   2599  MV Bits:    300   EOB Bits:   1406
+Y Bits:   27846  U Bits:     169  V Bits:     888  Total Bits:   28903
+MV StepSize: 8.000000  MV NumberNonZero: 1.984848  MV NumberZero: 62.015152
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:     4    0  266    0   19    0    0    1   40    0
+Y     Freq:    16    0  522    0    0    0    0    0  116    0
+UV    Freq:     8    0   12    0    0    0    0    0   29    0
+Comp: 0  MRSNR: 13.48  SNR: 26.12  PSNR: 32.07  MSE: 40.35  Entropy: 6.59
+Comp: 1  MRSNR: 4.77  SNR: 31.86  PSNR: 39.20  MSE: 7.81  Entropy: 3.11
+Comp: 2  MRSNR: 13.27  SNR: 33.72  PSNR: 38.44  MSE: 9.31  Entropy: 3.95
+END>Frame: 2
+START>Frame: 3
+Total No of Bits:   261740  Bits for Frame:    49178
+MB Attribute Bits:   2586  MV Bits:    344   EOB Bits:   1996
+Y Bits:   43011  U Bits:     134  V Bits:    1150  Total Bits:   44295
+MV StepSize: 8.000000  MV NumberNonZero: 3.027273  MV NumberZero: 60.972727
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:     0    0  264    0   14    1    0    0   51    0
+Y     Freq:     0    0  814    0    0    1    0    0  131    0
+UV    Freq:     0    0   19    0    0    0    0    0   33    0
+Comp: 0  MRSNR: 13.35  SNR: 26.06  PSNR: 32.02  MSE: 40.82  Entropy: 6.60
+Comp: 1  MRSNR: 4.76  SNR: 31.89  PSNR: 39.23  MSE: 7.76  Entropy: 3.11
+Comp: 2  MRSNR: 13.25  SNR: 33.70  PSNR: 38.42  MSE: 9.35  Entropy: 4.00
+END>Frame: 3
+START>Frame: 4
+Total No of Bits:   323577  Bits for Frame:    61837
+MB Attribute Bits:   2350  MV Bits:    305   EOB Bits:   2348
+Y Bits:   55230  U Bits:     266  V Bits:    1342  Total Bits:   56838
+MV StepSize: 8.000000  MV NumberNonZero: 4.177778  MV NumberZero: 59.822222
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:     1    0  264    0   14    1    0    1   49    0
+Y     Freq:     4    0  987    0    0    0    0    0  124    0
+UV    Freq:     2    0   21    0    0    1    0    0   35    0
+Comp: 0  MRSNR: 13.28  SNR: 25.99  PSNR: 31.95  MSE: 41.48  Entropy: 6.60
+Comp: 1  MRSNR: 4.77  SNR: 31.88  PSNR: 39.23  MSE: 7.77  Entropy: 3.14
+Comp: 2  MRSNR: 13.28  SNR: 33.69  PSNR: 38.41  MSE: 9.38  Entropy: 3.99
+END>Frame: 4
+START>Frame: 5
+Total No of Bits:   382973  Bits for Frame:    59396
+MB Attribute Bits:   2366  MV Bits:    309   EOB Bits:   2304
+Y Bits:   53095  U Bits:     125  V Bits:    1205  Total Bits:   54425
+MV StepSize: 8.000000  MV NumberNonZero: 3.965657  MV NumberZero: 60.034343
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:     0    0  268    0   14    1    0    0   47    0
+Y     Freq:     0    0  985    0    0    0    0    0  119    0
+UV    Freq:     0    0   19    0    0    1    0    0   28    0
+Comp: 0  MRSNR: 13.29  SNR: 25.96  PSNR: 31.92  MSE: 41.76  Entropy: 6.60
+Comp: 1  MRSNR: 4.70  SNR: 31.77  PSNR: 39.11  MSE: 7.98  Entropy: 3.14
+Comp: 2  MRSNR: 13.25  SNR: 33.59  PSNR: 38.31  MSE: 9.61  Entropy: 4.01
+END>Frame: 5
+START>Frame: 6
+Total No of Bits:   419188  Bits for Frame:    36215
+MB Attribute Bits:   2709  MV Bits:    340   EOB Bits:   1564
+Y Bits:   30263  U Bits:     167  V Bits:    1211  Total Bits:   31641
+MV StepSize: 8.000000  MV NumberNonZero: 2.201515  MV NumberZero: 61.798485
+Code MType:     0    1    2    3    4    5    6    7    8    9
+Macro Freq:     2    0  265    0   16    0    0    0   47    0
+Y     Freq:     8    0  595    0    0    0    0    0  123    0
+UV    Freq:     4    0   19    0    0    0    0    0   33    0
+Comp: 0  MRSNR: 13.34  SNR: 25.95  PSNR: 31.91  MSE: 41.84  Entropy: 6.62
+Comp: 1  MRSNR: 4.70  SNR: 31.71  PSNR: 39.06  MSE: 8.08  Entropy: 3.16
+Comp: 2  MRSNR: 13.11  SNR: 33.40  PSNR: 38.11  MSE: 10.04  Entropy: 4.02
+END>Frame: 6
+END>SEQUENCE
+Bits for first frame: 138588   Number of buffer overflows: 0

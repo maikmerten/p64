@@ -1,0 +1,23 @@
+/* This program emulates our P64 rate control. */
+/* The key thing is how we determine the quantization - it is proportional */
+/* to the buffercontents.  One can do different scaling... */
+open 1
+rcl BUFFERCONTENTS rcl QDFACT div rcl QOFFS add
+dup 1 lt ifng END:  /* Clip <1 */
+pop 1
+goto END:
+dup 31 gt ifng END: /* Clip >31 */
+pop 31
+END:
+floor  /* Must floor it for correct comparison */
+dup rcl GQUANT eq ifg NOENABLE:
+dup sto GQUANT
+sto MQUANT
+1 sto MQUANTENABLE
+exit
+NOENABLE:
+dup sto GQUANT
+sto MQUANT
+0 sto MQUANTENABLE
+exit
+close

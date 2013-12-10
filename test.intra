@@ -1,0 +1,6 @@
+/* This program just allows intra-frame coding only. */
+open 0
+0 sto MTYPE
+exit
+close
+printprogram 0
