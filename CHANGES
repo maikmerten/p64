@@ -1,0 +1,107 @@
+2/24/93 (P64 Version 1.1)
+
+BUG FIXES:
+
+Predicted motion vectors were not reset properly on the group of
+blocks.  The LastMBA was changed from 11,22 to 10,21.  Also previous
+type was considered.  This is sufficient to make things compatible
+with June 1989 draft.  (if #define VERSION_1.0 is set)
+
+DOCUMENTATION:
+
+The colorspace section was edited to include more precise matrices and
+a description of CCIR-601 versus JFIF style YUV->RGB conversion.  Also
+updated to reflect code changes in quantization.
+
+Some printers (non-laserwriters) have been unable to cope with the
+doc.ps files, specifically problems occurred in the postscript include
+files.  For some reason, Apple laserwriters and ghostscript do not
+seem to be afflicted by the above problem.  We have found a change in
+the dvi2ps postscript header that seems to fix this problem for Sun
+newsprint (and probably other) printers as well.  If this still is a
+problem, the raw tex and .ps files are available in the file
+P64DOCv1.1.tar.Z.  Caution: the special scaling command has different
+relative scales for different dvi2ps, dvips programs - can be a factor
+of 100 off depending on the version of the header file.
+
+CODE:
+
+For H.261 1992 Compatibility changes:
+
+Changed marker.c, huffman.c, init.c lexer.l, p64.c, ctables.h to
+reflect the following:
+
+Structure Information Changes:
+
+Old				New
+
+Picture layer:
+Type1 (13 bits)         	PType (6 bits)
+ParityEnable (1 bit)    	None
+Parity(8 bits)          	None
+PictureSpareEnable(1 bit)	(1 bit)   < Repeatable
+PictureSpare (16 bits)		(8 bits)  <
+
+GOB layer:
+
+Type2 (6 bits)         		None
+Quant1                  	GQuant
+GroupSpareEnable(1 bit) 	(1 bit)   < Repeatable
+GroupSpare (16 bits)    	(8 bits)  <
+
+Macroblock Layer:
+
+Type3				MType
+Quant2                  	MQuant
+
+
+Quantization:
+
+if MQUANT odd:
+        QAC = AC/2MQUANT
+
+if MQUANT even:
+        QAC = (AC+1)/2MQUANT;   AC > 0
+        QAC = (AC-1)/2MQUANT;  AC < 0
+
+or, more simply if one wishes to ignore reconstruction rounding-to-odd
+effects, just consider the ODD case (for some reasons, that does not
+cause any loss at all, so it was used in the MPEG codec 1.0, but that
+is changed back in MPEG codec 1.1).
+
+
+INVERSE QUANTIZATION:
+
+if MQUANT odd:
+        AC = (2QAC +1)*MQUANT; QAC > 0
+        AC = (2QAC -1)*MQUANT; QAC < 0
+
+if MQUANT even:
+        AC = (2QAC +1)*MQUANT -1;  QAC >0
+        AC = (2QAC -1)*MQUANT +1;  QAC <0
+
+
+(stat.c) The statistics now include mean-removed squared error. 
+
+MRSNR calculated based on (E[X^2]-E[X]^2)/E[error^2]
+SNR calculated based on E[X^2]/E[error^2].
+PSNR calculated based on 255*255/E[error^2].
+
+(p64.c) The default filename is now componentfile0.p64 rather than
+componentfile0.P.  An intra mdu is forced every 132 frames under
+default mode.
+
+5/14/93
+
+Changes to the p64.c to reflect better termination conditions.  It
+checks for end of file for all files terminated with at the end of a
+stream.
+
+3/24/94
+
+Changed the -z suffix option to add a break.
+
+1/17/95 
+
+Fixed bug in p64.c where the RCStore was not subtracting start frame
+and was overflowing...
