@@ -74,6 +74,14 @@ IOBUF *Iob=NULL;
 int BlockWidth = BLOCKWIDTH;
 int BlockHeight = BLOCKHEIGHT;
 
+/* y4m input */
+#include "vidinput.h"
+
+int y4minput;
+video_input_ycbcr frame;
+char tag[5];
+video_input vid;
+
 /*START*/
 
 /*BFUNC
@@ -604,13 +612,32 @@ void ReadIob()
   BEGIN("ReadIob");
   int i;
 
-  for(i=0;i<CFrame->NumberComponents;i++)
-    {
-      CFrame->Iob[i]->mem = LoadMem(CFrame->ComponentFileName[i],
-				    CFrame->Width[i],
-				    CFrame->Height[i],
-				    CFrame->Iob[i]->mem);
-    }
+	if(!y4minput)
+	{
+		/*Read current frame's Y, Cb, Cr components from seperate files*/
+		for(i=0;i<CFrame->NumberComponents;i++)
+		{
+			CFrame->Iob[i]->mem = LoadMem(	CFrame->ComponentFileName[i],
+											CFrame->Width[i],
+											CFrame->Height[i],
+											CFrame->Iob[i]->mem);
+		}
+	}
+	else
+	{
+		/*Read current frame's Y, Cb, Cr components from single y4m file*/
+		video_input_fetch_frame(&vid, frame, tag);
+		for(i=0;i<CFrame->NumberComponents;i++)
+		{
+			if (!CFrame->Iob[i]->mem)
+				CFrame->Iob[i]->mem = MakeStructure(MEM);
+
+			CFrame->Iob[i]->mem->width = frame[i].width;
+			CFrame->Iob[i]->mem->height = frame[i].height;
+			CFrame->Iob[i]->mem->len = frame[i].width * frame[i].height;
+			CFrame->Iob[i]->mem->data = frame[i].data;
+		}
+	}
 }
 
 /*BFUNC

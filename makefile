@@ -5,7 +5,7 @@
 
 PFLAGS = -O
 DEFS = system.h globals.h marker.h
-BASELINE =  p64.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o
+BASELINE =  p64.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o y4m_input.o vidinput.o
 
 .c.o:
 	$(CC) $(PFLAGS) -c $*.c
@@ -21,12 +21,12 @@ clean:
 p64: $(BASELINE)
 	$(CC) $(PFLAGS) $(BASELINE) -lm -o p64
 
-p64.o: p64.c $(DEFS)
+p64.o: p64.c $(DEFS) vidinput.h ogg/os_types.h
 codec.o: codec.c $(DEFS)
 marker.o: marker.c $(DEFS) marker.h
 huffman.o: huffman.c $(DEFS) huffman.h
 init.o: init.c $(DEFS) ctables.h
-io.o: io.c $(DEFS)
+io.o: io.c $(DEFS) vidinput.h ogg/os_types.h
 chendct.o: chendct.c $(DEFS)
 lexer.o: lexer.c
 mem.o: mem.c 
@@ -35,6 +35,8 @@ me.o: me.c
 stat.o: stat.c 
 stream.o: stream.c $(DEFS)
 transform.o: transform.c $(DEFS) dct.h
+vidinput.o: vidinput.c vidinput.h ogg/os_types.h
+y4m_input.o: y4m_input.c vidinput.h ogg/os_types.h
 
 lcheck: p64.ln codec.ln huffman.ln io.ln chendct.ln lexer.ln marker.ln me.ln mem.ln stat.ln stream.ln transform.ln
 	lint  p64.ln codec.ln huffman.ln io.ln chendct.ln lexer.ln marker.ln me.ln mem.ln stat.ln stream.ln transform.ln

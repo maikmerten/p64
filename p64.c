@@ -234,6 +234,15 @@ vFunc *UseIDct = ChenIDct;
 			  /(NumberGOB*NumberMDU*FrameRate)))
 #define BufferSize() (Rate/4) /*In bits */
 
+/* y4m input */
+#include "vidinput.h"
+
+int y4minput = 0;
+int y4mfromstdin = 0;
+video_input_ycbcr frame;
+char tag[5];
+video_input vid;
+
 /*START*/
 /*BFUNC
 
@@ -272,6 +281,10 @@ int main(argc,argv)
       else if (!strcmp("-QCIF",argv[i]))
 	{
 	  ImageType = IT_QCIF;
+	}
+      else if (!strcmp("-y4m",argv[i]))
+	{
+	  y4minput = 1;
 	}
       else if (*(argv[i]) == '-')
  	{
@@ -331,6 +344,10 @@ int main(argc,argv)
 	      break;
 	    case 'z':
 	      strcpy(CFrame->ComponentFileSuffix[s++],argv[++i]);
+	      break;
+	    case '-':
+	      y4mfromstdin = 1;
+	      strcpy(CFrame->ComponentFilePrefix[p++],"stdin");
 	      break;
 	    default:
 	      WHEREAMI();
@@ -394,6 +411,11 @@ int main(argc,argv)
     }
   else
     {
+		if(y4minput)
+		{
+			printf("Cannot output to y4m.\n");
+			exit(ERROR_BOUNDS);
+		}
       p64DecodeSequence();
     }
   exit(ErrorValue);
@@ -475,6 +497,7 @@ EFUNC*/
 void p64EncodeSequence()
 {
   BEGIN("p64EncodeSequence");
+  FILE *fin = NULL;
   
   MakeStat();
   MakeRate();
@@ -484,6 +507,29 @@ void p64EncodeSequence()
   InitFS(OFS);
   ClearFS(OFS);
   swopen(CImage->StreamFileName);
+	if(y4minput)
+	{
+		sprintf(CFrame->ComponentFileName[0],"%s%s",
+					CFrame->ComponentFilePrefix[0],
+					CFrame->ComponentFileSuffix[0]);
+
+		if(y4mfromstdin)
+		{
+#ifdef _WIN32
+			_setmode(_fileno(stdin),_O_BINARY);
+#endif
+			fin = stdin;
+		}
+		else
+			fin = fopen(CFrame->ComponentFileName[0], "rb");
+		
+		if(fin == NULL){
+			fprintf(stderr,"Unable to open '%s'.\n", CFrame->ComponentFileName[0]);
+			exit(-1);
+		}
+		if(video_input_open(&vid,fin) < 0)
+			exit(-1);
+	}
   if (Loud > MUTE)
     {
       PrintImage();
@@ -521,6 +567,7 @@ void p64EncodeSequence()
   if (CurrentFrame>LastFrame+1) {CurrentFrame=LastFrame+1;}
   TemporalReference = CurrentFrame % 32;
   WritePictureHeader();
+  video_input_close(&vid);
   swclose();
 /*
   SaveMem(CFS->fs[0]->mem,"XX");
@@ -544,8 +591,11 @@ void p64EncodeFrame()
   int x;
   
   printf("START>Frame: %d\n",CurrentFrame);
-  MakeFileNames();
-  VerifyFiles();
+	if(!y4minput)
+	{
+		MakeFileNames();
+		VerifyFiles();
+	}
   ReadIob();
   InstallFS(0,CFS);
   if (CurrentFrame!=StartFrame)
@@ -1341,7 +1391,7 @@ void SetCCITT()
       if (*CFrame->ComponentFileSuffix[i]=='\0')
 	{
 	  strcpy(CFrame->ComponentFileSuffix[i],
-		 DefaultSuffix[i]);
+		 y4minput ? ".y4m" : DefaultSuffix[i]);
 	}
     }
   CFS->NumberComponents = 3;
@@ -1423,6 +1473,7 @@ void Help()
   printf("     [-i MCSearchLimit] [-q Quantization] [-v] [-y]\n");
   printf("     [-r Target Rate] [-x Target Filesize]\n");
   printf("     [-s StreamFile] [-z ComponentFileSuffix i]\n");
+  printf("     [-y4m [--]]\n");
   printf("     ComponentFilePrefix1 [ComponentFilePrefix2 ComponentFilePrefix3]\n");
   printf("-NTSC (352x240)  -CIF (352x288) -QCIF (176x144) base filesizes.\n");
   printf("-a is the start filename index. [inclusive] Defaults to 0.\n");
@@ -1441,6 +1492,8 @@ void Help()
   printf("-x gives the target filesize in kilobits. (overrides -r option.)\n");
   printf("-y enables Reference DCT.\n");
   printf("-z gives the ComponentFileSuffixes (repeatable).\n");
+  printf("-y4m treat ComponentFilePrefix1ComponentFileSuffix1 as a single y4m file that contains all 3 components. (encoding only. ComponentFileSuffix defaults to .y4m if not specified.)\n");
+  printf("-- read y4m from stdin. ComponentFilePrefixes and ComponentFileSuffixes will not be used.\n");
 }
 
 /*BFUNC
