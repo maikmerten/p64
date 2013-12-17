@@ -1532,7 +1532,7 @@ void VerifyFiles()
   
   for(i=0;i<CFrame->NumberComponents;i++)
     {
-      if ((test = fopen(CFrame->ComponentFileName[i],"r")) == NULL)
+      if ((test = fopen(CFrame->ComponentFileName[i],"rb")) == NULL)
 	{
 	  WHEREAMI();
 	  printf("Cannot Open FileName %s\n",

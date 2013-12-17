@@ -236,7 +236,7 @@ MEM *LoadMem(filename,width,height,omem)
   MEM *temp;
   FILE *inp;
 
-  if ((inp = fopen(filename,"r")) == NULL)
+  if ((inp = fopen(filename,"rb")) == NULL)
     {
       WHEREAMI();
       printf("Cannot open filename %s.\n",filename);
@@ -273,7 +273,7 @@ MEM *SaveMem(filename,mem)
   BEGIN("SaveMem");
   FILE *out;
 
-  if ((out = fopen(filename,"w")) == NULL)
+  if ((out = fopen(filename,"wb")) == NULL)
     {
       WHEREAMI();
       printf("Cannot open filename %s.\n",filename);
