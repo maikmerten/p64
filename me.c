@@ -78,6 +78,58 @@ void initmc()
 }
 
 /*BFUNC
+ 
+ ComputeError() gives an error score regarding how well a 16x16 block matches
+ a target.
+ 
+ EFUNC*/
+
+__inline int ComputeError(unsigned char *bptr, unsigned char *cptr, MEM *rm, MEM *cm) {
+    int i,residue,error;
+    error = 0;
+    for(i=0;i<16;i++)
+      {
+        residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	residue=(*(bptr++)-*(cptr++));
+	if (residue<0) {error-=residue;} else {error+=residue;}
+	if (error COMPARISON MV) break;
+	bptr += (rm->width - 16);
+	cptr += (cm->width - 16);
+    }
+    return error;
+}
+
+
+/*BFUNC
 
 FastBME() does a fast brute-force motion estimation with two indexes
 into two memory structures. The motion estimation has a short-circuit
@@ -94,10 +146,8 @@ void FastBME(rx,ry,rm,cx,cy,cm)
      MEM *cm;
 {
   BEGIN("FastBME");
-  int px,py,dx,dy,incr,xdir,ydir;
-  register int i,j,data,val;
-  register unsigned char *bptr,*cptr;
-  unsigned char *baseptr;
+  int px,py,dx,dy,incr,xdir,ydir,i,j,data,val;
+  unsigned char *baseptr,*bptr,*cptr;
 
   MX=MY=MV=0;
   bptr=rm->data + rx + (ry * rm->width);
@@ -129,44 +179,7 @@ void FastBME(rx,ry,rm,cx,cy,cm)
 	      val=0;
 	      bptr = rm->data + px + (py * rm->width);
 	      cptr = baseptr;
-	      for(i=0;i<16;i++)
-		{
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  if (val COMPARISON MV) break;
-		  bptr += (rm->width - 16);
-		  cptr += (cm->width - 16);
-		}
+              val = ComputeError(bptr, cptr, rm, cm);
 	      if (val < MV)
 		{
 		  MV = val; 
@@ -184,44 +197,7 @@ void FastBME(rx,ry,rm,cx,cy,cm)
 	    {
 	      bptr = rm->data + px + (py * rm->width);
 	      cptr = baseptr;
-	      for(val=0,i=0;i<16;i++)
-		{
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  data=(*(bptr++)-*(cptr++));
-		  if (data<0) {val-=data;} else	{val+=data;}
-		  if (val COMPARISON MV) break;
-		  bptr += (rm->width - 16);
-		  cptr += (cm->width - 16);
-		}
+	      val = ComputeError(bptr, cptr, rm, cm);
 	      if (val < MV)
 		{
 		  MV = val; 
