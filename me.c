@@ -137,97 +137,69 @@ abort to speed up calculation.
 
 EFUNC*/
 
-void FastBME(rx,ry,rm,cx,cy,cm)
-     int rx;
-     int ry;
-     MEM *rm;
-     int cx;
-     int cy;
-     MEM *cm;
-{
-  BEGIN("FastBME");
-  int px,py,dx,dy,incr,xdir,ydir,i,j,data,val;
-  unsigned char *baseptr,*bptr,*cptr;
+void FastBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
 
-  MX=MY=MV=0;
-  bptr=rm->data + rx + (ry * rm->width);
-  baseptr=cm->data + cx + (cy * cm->width);
-  cptr=baseptr;
-  for(i=0;i<16;i++)
-    {
-      for(j=0;j<16;j++)
-	{
-	  data=(*(bptr++)-*(cptr++));
-	  if (data<0) {MV-=data;} else {MV+=data;}
-	}
-      bptr += (rm->width - 16);
-      cptr += (cm->width - 16);
+    BEGIN("FastBME");
+    int px, py, dx, dy, i, j, data, error;
+    unsigned char *baseptr, *bptr, *cptr;
+
+    // set up to check (0,0) vector
+    MX = MY = MV = 0;
+    bptr = rm->data + rx + (ry * rm->width);
+    baseptr = cm->data + cx + (cy * cm->width);
+    cptr = baseptr;
+    
+    // make sure we don't short-circuit when computing the error score
+    MV = 65536;
+    
+    // determine error for (0,0)
+    OMV = MV = ComputeError(bptr, cptr, rm, cm);
+
+    // do an exhaustive search
+    for (dx = -SearchLimit / 2; dx < SearchLimit / 2; ++dx) {
+        for (dy = -SearchLimit / 2; dy < SearchLimit / 2; ++dy) {
+            px = rx + dx;
+            py = ry + dy;
+
+            // only search if we're within frame boundaries
+            if ((px >= 0) && (px < rm->width - 16) &&
+                    (py >= 0) && (py < rm->height - 16)) {
+
+                error = 0;
+                bptr = rm->data + px + (py * rm->width);
+                cptr = baseptr;
+                error = ComputeError(bptr, cptr, rm, cm);
+
+                if (error < MV) {
+                    MV = error;
+                    MX = dx;
+                    MY = dy;
+                }
+            }
+        }
     }
-  OMV=MV; /*  printf("[00]MX %d MY %d MV %d\n",MX,MY,MV);*/
-  px=rx;
-  py=ry;
-  xdir=1;
-  ydir=1;
-  for(incr=1;incr<SearchLimit;incr++)
-    {
-      for(dx=0;dx<incr;dx++)
-	{
-	  if (xdir) {px++;} else {px--;}
-	  if (((px >= 0) && (px < rm->width-16)) &&
-	      ((py >= 0) && (py < rm->height-16)))
-	    {
-	      val=0;
-	      bptr = rm->data + px + (py * rm->width);
-	      cptr = baseptr;
-              val = ComputeError(bptr, cptr, rm, cm);
-	      if (val < MV)
-		{
-		  MV = val; 
-		  MX = px - rx;
-		  MY = py - ry;
-		}
-	    }
-	}
-      xdir = 1-xdir;
-      for(dy=0;dy<incr;dy++)
-	{
-	  if (ydir) {py++;} else {py--;}
-	  if (((px >= 0) && (px <= rm->width-16)) &&
-	      ((py >= 0) && (py <= rm->height-16)))
-	    {
-	      bptr = rm->data + px + (py * rm->width);
-	      cptr = baseptr;
-	      val = ComputeError(bptr, cptr, rm, cm);
-	      if (val < MV)
-		{
-		  MV = val; 
-		  MX = px - rx;
-		  MY = py - ry;
-		}
-	    }
-	}
-      ydir = 1-ydir;
+
+    // gather statistics of found motion vectors, used in decision-making
+    bptr = rm->data + (MX + rx) + ((MY + ry) * rm->width);
+    cptr = baseptr;
+    for (VAR = 0, VAROR = 0, MWOR = 0, i = 0; i < 16; i++) {
+        for (j = 0; j < 16; j++) {
+            data = *(bptr) - *(cptr);
+            VAR += data*data;
+            VAROR += *(bptr)*(*(bptr));
+            MWOR += *(bptr);
+            bptr++;
+            cptr++;
+        }
+        bptr += (rm->width - 16);
+        cptr += (cm->width - 16);
     }
-  bptr = rm->data + (MX+rx) + ((MY+ry) * rm->width);
-  cptr = baseptr;
-  for(VAR=0,VAROR=0,MWOR=0,i=0;i<16;i++)
-    {
-      for(j=0;j<16;j++)
-	{
-	  data = *(bptr) - *(cptr);
-	  VAR += data*data;
-	  VAROR += *(bptr)*(*(bptr));
-	  MWOR += *(bptr);
-	  bptr++;
-	  cptr++;
-	}
-      bptr += (rm->width - 16);
-      cptr += (cm->width - 16);
-    }
-  VAR = VAR/256;
-  VAROR = (VAROR/256)-(MWOR/256)*(MWOR/256);
+    VAR = VAR / 256;
+    VAROR = (VAROR / 256)-(MWOR / 256)*(MWOR / 256);
 }
-
+     
+     
+     
 /*BFUNC
 
 BruteMotionEstimation() does a brute-force motion estimation on all
