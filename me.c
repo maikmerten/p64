@@ -158,8 +158,8 @@ void FastBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
 
     // do an exhaustive search
     for (dx = -SearchLimit / 2; dx < SearchLimit / 2; ++dx) {
+        px = rx + dx;
         for (dy = -SearchLimit / 2; dy < SearchLimit / 2; ++dy) {
-            px = rx + dx;
             py = ry + dy;
 
             // only test vector if we're within frame boundaries
