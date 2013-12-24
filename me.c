@@ -80,15 +80,15 @@ void initmc()
 /*BFUNC
  
  ComputeError() gives an error score regarding how well a 16x16 block matches
- a target.
+ a target. Computation stops once the error reaches or surpasses the
+ best known solution.
  
  EFUNC*/
 
 __inline int ComputeError(unsigned char *bptr, unsigned char *cptr, MEM *rm, MEM *cm) {
     int i,residue,error;
     error = 0;
-    for(i=0;i<16;i++)
-      {
+    for(i=0;i<16;i++) {
         residue=(*(bptr++)-*(cptr++));
 	if (residue<0) {error-=residue;} else {error+=residue;}
 	residue=(*(bptr++)-*(cptr++));
@@ -121,6 +121,7 @@ __inline int ComputeError(unsigned char *bptr, unsigned char *cptr, MEM *rm, MEM
 	if (residue<0) {error-=residue;} else {error+=residue;}
 	residue=(*(bptr++)-*(cptr++));
 	if (residue<0) {error-=residue;} else {error+=residue;}
+        // break if the error exceeds the best known solution
 	if (error COMPARISON MV) break;
 	bptr += (rm->width - 16);
 	cptr += (cm->width - 16);
@@ -161,7 +162,7 @@ void FastBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
             px = rx + dx;
             py = ry + dy;
 
-            // only search if we're within frame boundaries
+            // only test vector if we're within frame boundaries
             if ((px >= 0) && (px < rm->width - 16) &&
                     (py >= 0) && (py < rm->height - 16)) {
 
@@ -179,7 +180,7 @@ void FastBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
         }
     }
 
-    // gather statistics of found motion vectors, used in decision-making
+    // gather statistics for search result, used in decision-making
     bptr = rm->data + (MX + rx) + ((MY + ry) * rm->width);
     cptr = baseptr;
     for (VAR = 0, VAROR = 0, MWOR = 0, i = 0; i < 16; i++) {
