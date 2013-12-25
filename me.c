@@ -229,17 +229,17 @@ void StepBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
     besty = ry;
 
     for (step = 16; step >= 1; step /= 2) {
-        for (dirx = -1; dirx <= 1; ++dirx) {
-            px = bestx + (dirx * step);
-            dx = px - rx;
-            for (diry = -1; diry <= 1; ++diry) {
+        for (diry = -1; diry <= 1; ++diry) {
+            py = besty + (diry * step);
+            dy = py - ry;
+            for (dirx = -1; dirx <= 1; ++dirx) {
                 if(dirx == 0 && diry == 0) {
                     // dont' test center again, we already did that
                     continue;
                 }
                 
-                py = besty + (diry * step);
-                dy = py - ry;
+                px = bestx + (dirx * step);
+                dx = px - rx;
 
                 // only test vector if we're within frame boundaries
                 // and the vector components are within -15..15
