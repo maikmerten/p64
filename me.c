@@ -228,7 +228,7 @@ void StepBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
     bestx = rx;
     besty = ry;
 
-    for (step = 16; step >= 1; step /= 2) {
+    for (step = 8; step >= 1; step /= 2) {
         for (diry = -1; diry <= 1; ++diry) {
             py = besty + (diry * step);
             dy = py - ry;
