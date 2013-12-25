@@ -198,7 +198,85 @@ void FastBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
     VAR = VAR / 256;
     VAROR = (VAROR / 256)-(MWOR / 256)*(MWOR / 256);
 }
-     
+
+/*BFUNC
+
+StepBME() implements the Three Step Search (TSS) motion search algorithm
+proposed by Koga et al. 1981
+
+EFUNC*/
+
+void StepBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
+
+    BEGIN("StepBME");
+    int px, py, dx, dy, i, j, data, error, step, dirx, diry, bestx, besty;
+    unsigned char *baseptr, *bptr, *cptr;
+
+    // set up to check (0,0) vector
+    MX = MY = MV = 0;
+    bptr = rm->data + rx + (ry * rm->width);
+    baseptr = cm->data + cx + (cy * cm->width);
+    cptr = baseptr;
+
+    // make sure we don't short-circuit when computing the error score
+    MV = 65536;
+
+    // determine error for (0,0)
+    OMV = MV = ComputeError(bptr, cptr, rm, cm);
+
+    // initialize step search at (0,0)
+    bestx = rx;
+    besty = ry;
+
+    for (step = 16; step >= 1; step /= 2) {
+        for (dirx = -1; dirx <= 1; ++dirx) {
+            px = bestx + (dirx * step);
+            dx = px - rx;
+            for (diry = -1; diry <= 1; ++diry) {
+                py = besty + (diry * step);
+                dy = py - ry;
+
+                // only test vector if we're within frame boundaries
+                // and the vector components are within -16..15
+                if ((px >= 0) && (px < rm->width - 16) &&
+                        (py >= 0) && (py < rm->height - 16) &&
+                         dx >= -16 && dx <= 15 && dy >= -16 && dy <= 15) {
+
+                    bptr = rm->data + px + (py * rm->width);
+                    cptr = baseptr;
+                    error = ComputeError(bptr, cptr, rm, cm);
+
+                    if (error < MV) {
+                        MV = error;
+                        MX = dx;
+                        MY = dy;
+                    }
+                }
+            }
+        }
+        // center search for next iteration on best candidate so far
+        bestx = rx + MX;
+        besty = ry + MY;
+    }
+
+    // gather statistics for search result, used in decision-making
+    bptr = rm->data + (MX + rx) + ((MY + ry) * rm->width);
+    cptr = baseptr;
+    for (VAR = 0, VAROR = 0, MWOR = 0, i = 0; i < 16; i++) {
+        for (j = 0; j < 16; j++) {
+            data = *(bptr) - *(cptr);
+            VAR += data*data;
+            VAROR += *(bptr)*(*(bptr));
+            MWOR += *(bptr);
+            bptr++;
+            cptr++;
+        }
+        bptr += (rm->width - 16);
+        cptr += (cm->width - 16);
+    }
+    VAR = VAR / 256;
+    VAROR = (VAROR / 256)-(MWOR / 256)*(MWOR / 256);
+}
      
      
 /*BFUNC
@@ -219,7 +297,8 @@ void BruteMotionEstimation(pmem,fmem)
     {
       for(x=0;x<fmem->width;x+=16)
 	{
-	  FastBME(x,y,pmem,x,y,fmem);
+	  //FastBME(x,y,pmem,x,y,fmem);
+          StepBME(x,y,pmem,x,y,fmem);
 	  MeVAR[MeN] = VAR;
 	  MeVAROR[MeN] = VAROR;
 	  MeMWOR[MeN] = MWOR;
