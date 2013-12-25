@@ -286,16 +286,16 @@ void StepBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
      
 /*BFUNC
 
-BruteMotionEstimation() does a brute-force motion estimation on all
+MotionEstimation() does a motion estimation on all
 aligned 16x16 blocks in two memory structures.
 
 EFUNC*/
 
-void BruteMotionEstimation(pmem,fmem)
+void MotionEstimation(pmem,fmem)
      MEM *pmem;
      MEM *fmem;
 {
-  BEGIN("BruteMotionEstimation");
+  BEGIN("MotionEstimation");
   int x,y;
 
   for(MeN=0,y=0;y<fmem->height;y+=16)

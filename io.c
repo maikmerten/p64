@@ -118,7 +118,7 @@ EFUNC*/
 void GlobalMC()
 {
   BEGIN("GlobalMC");
-  BruteMotionEstimation(Iob->mem,CFrame->Iob[0]->mem);
+  MotionEstimation(Iob->mem,CFrame->Iob[0]->mem);
 }
 
 /*BFUNC
