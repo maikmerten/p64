@@ -233,14 +233,19 @@ void StepBME(int rx, int ry, MEM *rm, int cx, int cy, MEM *cm) {
             px = bestx + (dirx * step);
             dx = px - rx;
             for (diry = -1; diry <= 1; ++diry) {
+                if(dirx == 0 && diry == 0) {
+                    // dont' test center again, we already did that
+                    continue;
+                }
+                
                 py = besty + (diry * step);
                 dy = py - ry;
 
                 // only test vector if we're within frame boundaries
-                // and the vector components are within -16..15
+                // and the vector components are within -15..15
                 if ((px >= 0) && (px < rm->width - 16) &&
                         (py >= 0) && (py < rm->height - 16) &&
-                         dx >= -16 && dx <= 15 && dy >= -16 && dy <= 15) {
+                         dx >= -15 && dx <= 15 && dy >= -15 && dy <= 15) {
 
                     bptr = rm->data + px + (py * rm->width);
                     cptr = baseptr;
