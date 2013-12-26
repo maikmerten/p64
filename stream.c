@@ -90,7 +90,7 @@ void mropen(filename)
 
   current_read_byte=0;
   read_position = -1;
-  if ((srin = fopen(filename,"r")) == NULL)
+  if ((srin = fopen(filename,"rb")) == NULL)
     {
       fprintf(stderr,"Cannot Read Input File\n");
       exit(ERROR_INIT_FILE);
@@ -123,7 +123,7 @@ void mwopen(filename)
 
   current_write_byte=0;
   write_position=7;
-  if ((swout = fopen(filename,"w+")) == NULL)
+  if ((swout = fopen(filename,"w+b")) == NULL)
     {
       WHEREAMI();
       printf("Cannot Open Output File\n");
