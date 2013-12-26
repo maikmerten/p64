@@ -79,9 +79,52 @@ static int zigzag_index[] =
 #define FixedMultiply(s,x,y)  x = ((x * y) >> s);
 #define DCT_OFFSET 128
 
-
 /*START*/
 
+/*BFUNC
+
+FastDivide() is a very bizarre little helper to let the compiler construct
+fast integer divides for the most common divisors.
+
+EFUNC*/
+
+
+__inline int FastDivide(int divident, int divisor) {
+    switch(divisor) {
+        case 1: return divident;
+        case 2: return divident / 2;
+        case 3: return divident / 3;
+        case 4: return divident / 4;
+        case 5: return divident / 5;
+        case 6: return divident / 6;
+        case 7: return divident / 7;
+        case 8: return divident / 8;
+        case 9: return divident / 9;
+        case 10: return divident / 10;
+        case 11: return divident / 11;
+        case 12: return divident / 12;
+        case 13: return divident / 13;
+        case 14: return divident / 14;
+        case 15: return divident / 15;
+        case 16: return divident / 16;
+        case 17: return divident / 17;
+        case 18: return divident / 18;
+        case 19: return divident / 19;
+        case 20: return divident / 20;
+        case 21: return divident / 21;
+        case 22: return divident / 22;
+        case 23: return divident / 23;
+        case 24: return divident / 24;
+        case 25: return divident / 25;
+        case 26: return divident / 26;
+        case 27: return divident / 27;
+        case 28: return divident / 28;
+        case 29: return divident / 29;
+        case 30: return divident / 30;
+        case 31: return divident / 31;
+    }
+    return divident / divisor;     
+}
 /*BFUNC
 
 ReferenceDct() does a reference DCT on the input (matrix) and output
@@ -89,41 +132,33 @@ ReferenceDct() does a reference DCT on the input (matrix) and output
 
 EFUNC*/
 
-void ReferenceDct(matrix,newmatrix)
-     int *matrix;
-     int *newmatrix;
-{
-  BEGIN("ReferenceDct");
-  int *mptr;
-  double *sptr,*dptr;
-  double sourcematrix[BLOCKSIZE],destmatrix[BLOCKSIZE];
+void ReferenceDct(int *matrix, int *newmatrix) {
+    BEGIN("ReferenceDct");
+    int *mptr;
+    double *sptr, *dptr;
+    double sourcematrix[BLOCKSIZE], destmatrix[BLOCKSIZE];
 
-  for(sptr=sourcematrix,mptr=matrix;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      *(sptr++) = (double) *mptr;
+    for (sptr = sourcematrix, mptr = matrix; mptr < matrix + BLOCKSIZE; mptr++) {
+        *(sptr++) = (double) *mptr;
     }
-  for(dptr = destmatrix,sptr=sourcematrix;
-      sptr<sourcematrix+BLOCKSIZE;sptr+=BLOCKWIDTH)
-
-    {
-      DoubleReferenceDct1D(sptr,dptr);
-      dptr+=BLOCKWIDTH;
+    for (dptr = destmatrix, sptr = sourcematrix;
+            sptr < sourcematrix + BLOCKSIZE; sptr += BLOCKWIDTH) {
+        DoubleReferenceDct1D(sptr, dptr);
+        dptr += BLOCKWIDTH;
     }
-  DoubleTransposeMatrix(destmatrix,sourcematrix);
-  for(dptr = destmatrix,sptr=sourcematrix;
-      sptr<sourcematrix+BLOCKSIZE;sptr+=BLOCKWIDTH)
-    {
-      DoubleReferenceDct1D(sptr,dptr);
-      dptr+=BLOCKWIDTH;
+    DoubleTransposeMatrix(destmatrix, sourcematrix);
+    for (dptr = destmatrix, sptr = sourcematrix;
+            sptr < sourcematrix + BLOCKSIZE; sptr += BLOCKWIDTH) {
+        DoubleReferenceDct1D(sptr, dptr);
+        dptr += BLOCKWIDTH;
     }
-  DoubleTransposeMatrix(destmatrix,sourcematrix);
-  for(sptr = sourcematrix,mptr=newmatrix;
-      mptr<newmatrix+BLOCKSIZE;sptr++)
-    {    /* NB: Inversion on counter */
-      *(mptr++) = (int) (*sptr > 0 ? (*(sptr)+0.5):(*(sptr)-0.5));
+    DoubleTransposeMatrix(destmatrix, sourcematrix);
+    for (sptr = sourcematrix, mptr = newmatrix;
+            mptr < newmatrix + BLOCKSIZE; sptr++) { /* NB: Inversion on counter */
+        *(mptr++) = (int) (*sptr > 0 ? (*(sptr) + 0.5) : (*(sptr) - 0.5));
     }
 }
-
+     
 /*BFUNC
 
 DoubleReferenceDCT1D() does a 8 point dct on an array of double
@@ -131,19 +166,14 @@ input and places the result in a double output.
 
 EFUNC*/
 
-static void DoubleReferenceDct1D(ivect,ovect)
-     double *ivect;
-     double *ovect;
-{
-  BEGIN("DoubleReferenceDct1D");
-  double *mptr,*iptr,*optr;
+static void DoubleReferenceDct1D(double *ivect, double *ovect) {
+    BEGIN("DoubleReferenceDct1D");
+    double *mptr, *iptr, *optr;
 
-  for(mptr=DctMatrix,optr=ovect;optr<ovect+BLOCKWIDTH;optr++)
-    {
-      for(*optr=0,iptr=ivect;iptr<ivect+BLOCKWIDTH;iptr++)
-	{
-	  *optr += *iptr*(*(mptr++));
-	}
+    for (mptr = DctMatrix, optr = ovect; optr < ovect + BLOCKWIDTH; optr++) {
+        for (*optr = 0, iptr = ivect; iptr < ivect + BLOCKWIDTH; iptr++) {
+            *optr += *iptr * (*(mptr++));
+        }
     }
 }
 
@@ -155,36 +185,29 @@ output (newmatrix).
 
 EFUNC*/
 
-void ReferenceIDct(matrix,newmatrix)
-     int *matrix;
-     int *newmatrix;
-{
-  BEGIN("ReferenceIDct");
-  int *mptr;
-  double *sptr,*dptr;
-  double sourcematrix[BLOCKSIZE],destmatrix[BLOCKSIZE];
+void ReferenceIDct(int *matrix, int *newmatrix) {
+    BEGIN("ReferenceIDct");
+    int *mptr;
+    double *sptr, *dptr;
+    double sourcematrix[BLOCKSIZE], destmatrix[BLOCKSIZE];
 
-  for(sptr = sourcematrix,mptr=matrix;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      *(sptr++) = (double) *mptr;
+    for (sptr = sourcematrix, mptr = matrix; mptr < matrix + BLOCKSIZE; mptr++) {
+        *(sptr++) = (double) *mptr;
     }
-  for(dptr = destmatrix,sptr=sourcematrix;
-      sptr<sourcematrix+BLOCKSIZE;sptr+=BLOCKWIDTH)
-    {
-      DoubleReferenceIDct1D(sptr,dptr);
-      dptr+=BLOCKWIDTH;
+    for (dptr = destmatrix, sptr = sourcematrix;
+            sptr < sourcematrix + BLOCKSIZE; sptr += BLOCKWIDTH) {
+        DoubleReferenceIDct1D(sptr, dptr);
+        dptr += BLOCKWIDTH;
     }
-  DoubleTransposeMatrix(destmatrix,sourcematrix);
-  for(dptr = destmatrix,sptr=sourcematrix;
-      sptr<sourcematrix+BLOCKSIZE;sptr+=BLOCKWIDTH)
-    {
-      DoubleReferenceIDct1D(sptr,dptr);
-      dptr+=BLOCKWIDTH;
+    DoubleTransposeMatrix(destmatrix, sourcematrix);
+    for (dptr = destmatrix, sptr = sourcematrix;
+            sptr < sourcematrix + BLOCKSIZE; sptr += BLOCKWIDTH) {
+        DoubleReferenceIDct1D(sptr, dptr);
+        dptr += BLOCKWIDTH;
     }
-  DoubleTransposeMatrix(destmatrix,sourcematrix);
-  for(sptr = sourcematrix,mptr=newmatrix;mptr<newmatrix+BLOCKSIZE;sptr++)
-    {    /* NB: Inversion on counter */
-      *(mptr++) = (int) (*sptr > 0 ? (*(sptr)+0.5):(*(sptr)-0.5));
+    DoubleTransposeMatrix(destmatrix, sourcematrix);
+    for (sptr = sourcematrix, mptr = newmatrix; mptr < newmatrix + BLOCKSIZE; sptr++) { /* NB: Inversion on counter */
+        *(mptr++) = (int) (*sptr > 0 ? (*(sptr) + 0.5) : (*(sptr) - 0.5));
     }
 }
 
@@ -195,19 +218,14 @@ puts the output in ovect.
 
 EFUNC*/
 
-static void DoubleReferenceIDct1D(ivect,ovect)
-     double *ivect;
-     double *ovect;
-{
-  BEGIN("DoubleReferenceIDct1D");
-  double *mptr,*iptr,*optr;
+static void DoubleReferenceIDct1D(double *ivect, double *ovect) {
+    BEGIN("DoubleReferenceIDct1D");
+    double *mptr, *iptr, *optr;
 
-  for(mptr = IDctMatrix,optr=ovect;optr<ovect+BLOCKWIDTH;optr++)
-    {
-      for(*optr=0,iptr=ivect;iptr<ivect+BLOCKWIDTH;iptr++)
-	{
-	  *optr += *iptr*(*(mptr++));
-	}
+    for (mptr = IDctMatrix, optr = ovect; optr < ovect + BLOCKWIDTH; optr++) {
+        for (*optr = 0, iptr = ivect; iptr < ivect + BLOCKWIDTH; iptr++) {
+            *optr += *iptr * (*(mptr++));
+        }
     }
 }
 
@@ -218,16 +236,12 @@ newmatrix.
 
 EFUNC*/
 
-void TransposeMatrix(matrix,newmatrix)
-     int *matrix;
-     int *newmatrix;
-{
-  BEGIN("TransposeMatrix");
-  int *tptr;
+void TransposeMatrix(int *matrix, int *newmatrix) {
+    BEGIN("TransposeMatrix");
+    int *tptr;
 
-  for(tptr=transpose_index;tptr<transpose_index+BLOCKSIZE;tptr++)
-    {
-      *(newmatrix++) = matrix[*tptr];
+    for (tptr = transpose_index; tptr < transpose_index + BLOCKSIZE; tptr++) {
+        *(newmatrix++) = matrix[*tptr];
     }
 }
 
@@ -238,74 +252,61 @@ double output in newmatrix.
 
 EFUNC*/
 
-static void DoubleTransposeMatrix(matrix,newmatrix)
-     double *matrix;
-     double *newmatrix;
-{
-  BEGIN("DoubleTransposeMatrix");
-  int *tptr;
+static void DoubleTransposeMatrix(double *matrix, double *newmatrix) {
+    BEGIN("DoubleTransposeMatrix");
+    int *tptr;
 
-  for(tptr=transpose_index;tptr<transpose_index+BLOCKSIZE;tptr++)
-    {
-      *(newmatrix++) = matrix[*tptr];
+    for (tptr = transpose_index; tptr < transpose_index + BLOCKSIZE; tptr++) {
+        *(newmatrix++) = matrix[*tptr];
     }
-}  
-
+}
+     
 /*BFUNC
 
-CCITTQuantzie() quantizes the input matrix with a DC quantize step
+CCITTQuantize() quantizes the input matrix with a DC quantize step
 and an AC quantize step.
 
 EFUNC*/
 
-void CCITTQuantize(matrix,dcqfact,acqfact)
-     int *matrix;
-     int dcqfact;
-     int acqfact;
-{
-  BEGIN("CCITTQuantize");
-  int *mptr;
+__inline void CCITTQuantize(int *matrix, int dcqfact, int acqfact) {
 
+    BEGIN("CCITTQuantize");
+    int *mptr, coeff;
 #ifdef VERSION_1_0
-  dcqfact++;
-  acqfact++;
-  dcqfact <<=1;
-  acqfact <<=1;
-  *matrix = *matrix/dcqfact;
-  for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      *mptr = *mptr / acqfact;
+    dcqfact++;
+    acqfact++;
+    dcqfact <<= 1;
+    acqfact <<= 1;
+    *matrix = *matrix / dcqfact;
+    for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+        *mptr = *mptr / acqfact;
     }
 #else
-  if (dcqfact&1) /* Odd */
-    *matrix= *matrix/(dcqfact<<1);
-  else           /* Even */
-    {
-      if (*matrix>0)
-	*matrix= (*matrix+1)/(dcqfact<<1);
-      else
-	*matrix= (*matrix-1)/(dcqfact<<1);
+    if (dcqfact & 1) { /* Odd */
+        *matrix = FastDivide(*matrix, (dcqfact << 1));
+    } else { /* Even */
+        coeff = *matrix;
+        coeff += (coeff > 0) ? 1 : -1;
+        coeff = FastDivide(coeff, (dcqfact << 1));
+        *matrix = coeff;
     }
-  if (acqfact&1) /* Odd */
-    {
-      acqfact<<=1;
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	*mptr = *mptr / acqfact;
-    }
-  else
-    {
-      acqfact<<=1;
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	{
-	  if (*mptr>0)
-	    *mptr = (*mptr+1) / acqfact;
-	  else
-	    *mptr = (*mptr-1) / acqfact;
-	}
+
+    if (acqfact & 1) /* Odd */ {
+        acqfact <<= 1;
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; ++mptr) {
+            *mptr = FastDivide(*mptr, acqfact);
+        }
+    } else {
+        acqfact <<= 1;
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; ++mptr) {
+            coeff = *mptr;
+            coeff += (coeff > 0) ? 1 : -1;
+            coeff = FastDivide(coeff, acqfact);
+            *mptr = coeff;
+        }
     }
 #endif
 }
-
 /*BFUNC
 
 CCITTFlatQuantize() quantizes the input matrix by a dc factor (flat)
@@ -313,46 +314,40 @@ and an acqfactor (thresholded).
 
 EFUNC*/
 
-void CCITTFlatQuantize(matrix,dcqfact,acqfact)
-     int *matrix;
-     int dcqfact;
-     int acqfact;
-{
-  BEGIN("CCITTFlatQuantize");
-  int *mptr;
+void CCITTFlatQuantize(int *matrix, int dcqfact, int acqfact) {
+    BEGIN("CCITTFlatQuantize");
+    int *mptr;
 
-
-  if (*matrix > 0) {*matrix = (*matrix + dcqfact/2)/ dcqfact;}
-  else {*matrix = (*matrix - dcqfact/2)/ dcqfact;}
+    if (*matrix > 0) {
+        *matrix = FastDivide((*matrix + dcqfact / 2), dcqfact);
+    } else {
+        *matrix = FastDivide((*matrix - dcqfact / 2), dcqfact);
+    }
 
 #ifdef VERSION_1_0
-  acqfact++;
-  acqfact <<=1;
-  for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      *mptr = *mptr / acqfact;
+    acqfact++;
+    acqfact <<= 1;
+    for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+        *mptr = *mptr / acqfact;
     }
 #else
-  if (acqfact&1) /* Odd */
-    {
-      acqfact<<=1;
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	*mptr = *mptr / acqfact;
-    }
-  else
-    {
-      acqfact<<=1;
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	{
-	  if (*mptr>0)
-	    *mptr = (*mptr+1) / acqfact;
-	  else
-	    *mptr = (*mptr-1) / acqfact;
-	}
+    if (acqfact & 1) /* Odd */ {
+        acqfact <<= 1;
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+            *mptr = FastDivide(*mptr, acqfact);
+        }
+    } else {
+        acqfact <<= 1;
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+            if (*mptr > 0) {
+                *mptr = FastDivide((*mptr + 1), acqfact);
+            } else {
+                *mptr = FastDivide((*mptr - 1), acqfact);
+            }
+        }
     }
 #endif
 }
-
 /*BFUNC
 
 ICCITTFlatQuantize() does an inverse flat quantize on the dc element
@@ -361,42 +356,40 @@ matrix.
 
 EFUNC*/
 
-void ICCITTFlatQuantize(matrix,dcqfact,acqfact)
-     int *matrix;
-     int dcqfact;
-     int acqfact;
-{
-  BEGIN("ICCITTFlatQuantize");
-  int *mptr;
+void ICCITTFlatQuantize(int *matrix, int dcqfact, int acqfact) {
+    BEGIN("ICCITTFlatQuantize");
+    int *mptr;
 
-  *matrix = *matrix*dcqfact;
+    *matrix = *matrix*dcqfact;
 #ifdef VERSION_1_0
-  acqfact++;
-  for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      if (*mptr>0) {*mptr = ((*mptr<<1) + 1)*acqfact;}
-      else if (*mptr<0) {*mptr = ((*mptr<<1) - 1)*acqfact;}
+    acqfact++;
+    for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+        if (*mptr > 0) {
+            *mptr = ((*mptr << 1) + 1) * acqfact;
+        } else if (*mptr < 0) {
+            *mptr = ((*mptr << 1) - 1) * acqfact;
+        }
     }
 #else
-  if (acqfact&1) /* Odd */
-    {
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	{
-	  if (*mptr>0) {*mptr = ((*mptr<<1) + 1)*acqfact;}
-	  else if (*mptr<0) {*mptr = ((*mptr<<1) - 1)*acqfact;}
-	}
-    }
-  else
-    {
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	{
-	  if (*mptr>0) {*mptr = (((*mptr<<1) + 1)*acqfact)-1;}
-	  else if (*mptr<0) {*mptr = (((*mptr<<1) - 1)*acqfact)+1;}
-	}
+    if (acqfact & 1) /* Odd */ {
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+            if (*mptr > 0) {
+                *mptr = ((*mptr << 1) + 1) * acqfact;
+            } else if (*mptr < 0) {
+                *mptr = ((*mptr << 1) - 1) * acqfact;
+            }
+        }
+    } else {
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+            if (*mptr > 0) {
+                *mptr = (((*mptr << 1) + 1) * acqfact) - 1;
+            } else if (*mptr < 0) {
+                *mptr = (((*mptr << 1) - 1) * acqfact) + 1;
+            }
+        }
     }
 #endif
 }
-
 /*BFUNC
 
 ICCITTQuantize() does an inverse quantize on the dc element and the ac
@@ -404,54 +397,58 @@ element with their selective q values, respectively.
 
 EFUNC*/
 
-void ICCITTQuantize(matrix,dcqfact,acqfact)
-     int *matrix;
-     int dcqfact;
-     int acqfact;
-{
-  BEGIN("ICCITTQuantize");
-  int *mptr;
+void ICCITTQuantize(int *matrix, int dcqfact, int acqfact) {
+    BEGIN("ICCITTQuantize");
+    int *mptr;
 
 #ifdef VERSION_1_0
-  dcqfact++;
-  acqfact++;
-  if (*matrix>0) {*matrix = (2* *matrix + 1)*dcqfact;}
-  else if (*matrix<0) {*matrix = (2* *matrix - 1)*dcqfact;}
-  for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      if (*mptr>0) {*mptr = (2* *mptr + 1)*acqfact;}
-      else if (*mptr<0) {*mptr = (2* *mptr - 1)*acqfact;}
+    dcqfact++;
+    acqfact++;
+    if (*matrix > 0) {
+        *matrix = (2 * *matrix + 1) * dcqfact;
+    } else if (*matrix < 0) {
+        *matrix = (2 * *matrix - 1) * dcqfact;
+    }
+    for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+        if (*mptr > 0) {
+            *mptr = (2 * *mptr + 1) * acqfact;
+        } else if (*mptr < 0) {
+            *mptr = (2 * *mptr - 1) * acqfact;
+        }
     }
 #else
-  if (dcqfact&1)
-    {
-      if (*matrix>0) {*matrix = ((*matrix<<1) + 1)*dcqfact;}
-	  else if (*matrix<0) {*matrix = ((*matrix<<1) - 1)*dcqfact;}
+    if (dcqfact & 1) {
+        if (*matrix > 0) {
+            *matrix = ((*matrix << 1) + 1) * dcqfact;
+        } else if (*matrix < 0) {
+            *matrix = ((*matrix << 1) - 1) * dcqfact;
+        }
+    } else {
+        if (*matrix > 0) {
+            *matrix = (((*matrix << 1) + 1) * dcqfact) - 1;
+        } else if (*matrix < 0) {
+            *matrix = (((*matrix << 1) - 1) * dcqfact) + 1;
+        }
     }
-  else
-    {
-      if (*matrix>0) {*matrix = (((*matrix<<1) + 1)*dcqfact)-1;}
-      else if (*matrix<0) {*matrix = (((*matrix<<1) - 1)*dcqfact)+1;}
-    }
-  if (acqfact&1) /* Odd */
-    {
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	{
-	  if (*mptr>0) {*mptr = ((*mptr<<1) + 1)*acqfact;}
-	  else if (*mptr<0) {*mptr = ((*mptr<<1) - 1)*acqfact;}
-	}
-    }
-  else
-    {
-      for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-	{
-	  if (*mptr>0) {*mptr = (((*mptr<<1) + 1)*acqfact)-1;}
-	  else if (*mptr<0) {*mptr = (((*mptr<<1) - 1)*acqfact)+1;}
-	}
+    if (acqfact & 1) /* Odd */ {
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+            if (*mptr > 0) {
+                *mptr = ((*mptr << 1) + 1) * acqfact;
+            } else if (*mptr < 0) {
+                *mptr = ((*mptr << 1) - 1) * acqfact;
+            }
+        }
+    } else {
+        for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+            if (*mptr > 0) {
+                *mptr = (((*mptr << 1) + 1) * acqfact) - 1;
+            } else if (*mptr < 0) {
+                *mptr = (((*mptr << 1) - 1) * acqfact) + 1;
+            }
+        }
     }
 #endif
 }
-
 
 /*BFUNC
 
@@ -460,20 +457,21 @@ a 10 bit word.
 
 EFUNC*/
 
-void BoundDctMatrix(matrix)
-     int *matrix;
-{
-  BEGIN("BoundDctMatrix");
-  int *mptr;
+void BoundDctMatrix(int *matrix) {
+    BEGIN("BoundDctMatrix");
+    int *mptr;
 
-  if (*matrix > 2047) {*matrix = 2047;}
-  for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      if (*mptr < -1023) {*mptr = -1023;}
-      else if (*mptr > 1023) {*mptr = 1023;}
+    if (*matrix > 2047) {
+        *matrix = 2047;
+    }
+    for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+        if (*mptr < -1023) {
+            *mptr = -1023;
+        } else if (*mptr > 1023) {
+            *mptr = 1023;
+        }
     }
 }
-
 
 /*BFUNC
 
@@ -482,19 +480,18 @@ value greater than 255 or less than 0.
 
 EFUNC*/
 
-void BoundIDctMatrix(matrix)
-     int *matrix;
-{
-  BEGIN("BoundIDctMatrix");
-  int *mptr;
+void BoundIDctMatrix(int *matrix) {
+    BEGIN("BoundIDctMatrix");
+    int *mptr;
 
-  for(mptr=matrix;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      if (*mptr < 0) {*mptr = 0;}
-      else if (*mptr > 255) {*mptr = 255;}
+    for (mptr = matrix; mptr < matrix + BLOCKSIZE; mptr++) {
+        if (*mptr < 0) {
+            *mptr = 0;
+        } else if (*mptr > 255) {
+            *mptr = 255;
+        }
     }
 }
-
 /*BFUNC
 
 FlatBoundQuantizeMatrix() bounds a quantized matrix generated by
@@ -502,21 +499,23 @@ CCITTFlatQuantize().
 
 EFUNC*/
 
-void FlatBoundQuantizeMatrix(matrix)
-     int *matrix;
-{
-  BEGIN("FlatBoundQuantizeMatrix");
-  int *mptr;
+void FlatBoundQuantizeMatrix(int *matrix) {
+    BEGIN("FlatBoundQuantizeMatrix");
+    int *mptr;
 
-  if (*matrix > 254) {*matrix = 254;}
-  else if (*matrix < 1) {*matrix = 1;}
-  for(mptr=matrix+1;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      if (*mptr < -127) {*mptr = -127;}  /* Should this be a -127? */
-      else if (*mptr > 127) {*mptr = 127;}
+    if (*matrix > 254) {
+        *matrix = 254;
+    } else if (*matrix < 1) {
+        *matrix = 1;
+    }
+    for (mptr = matrix + 1; mptr < matrix + BLOCKSIZE; mptr++) {
+        if (*mptr < -127) {
+            *mptr = -127;
+        } else if (*mptr > 127) { /* Should this be a -127? */
+            *mptr = 127;
+        }
     }
 }
-
 /*BFUNC
 
 BoundQuantizeMatrix() bounds a quantized matrix generated by
@@ -524,19 +523,18 @@ CCITTQuantize().
 
 EFUNC*/
 
-void BoundQuantizeMatrix(matrix)
-     int *matrix;
-{
-  BEGIN("BoundQuantizeMatrix");
-  int *mptr;
+void BoundQuantizeMatrix(int *matrix) {
+    BEGIN("BoundQuantizeMatrix");
+    int *mptr;
 
-  for(mptr=matrix;mptr<matrix+BLOCKSIZE;mptr++)
-    {
-      if (*mptr < -127)	{*mptr = -127;}  /* Should this be a -127? */
-      else if (*mptr > 127) {*mptr = 127;}
+    for (mptr = matrix; mptr < matrix + BLOCKSIZE; mptr++) {
+        if (*mptr < -127) {
+            *mptr = -127;
+        } else if (*mptr > 127) { /* Should this be a -127? */
+            *mptr = 127;
+        }
     }
 }
-
 
 /*BFUNC
 
@@ -545,19 +543,14 @@ input imatrix and places the output in omatrix.
 
 EFUNC*/
 
-void IZigzagMatrix(imatrix,omatrix)
-     int *imatrix;
-     int *omatrix;
-{
-  BEGIN("IZigzagMatrix");
-  int *tptr;
+void IZigzagMatrix(int *imatrix, int *omatrix) {
+    BEGIN("IZigzagMatrix");
+    int *tptr;
 
-  for(tptr=zigzag_index;tptr<zigzag_index+BLOCKSIZE;tptr++)
-    {
-      *(omatrix++) = imatrix[*tptr];
+    for (tptr = zigzag_index; tptr < zigzag_index + BLOCKSIZE; tptr++) {
+        *(omatrix++) = imatrix[*tptr];
     }
 }
-
 /*BFUNC
 
 ZigzagMatrix() performs a zig-zag translation on the input imatrix
@@ -565,42 +558,35 @@ and puts the output in omatrix.
 
 EFUNC*/
 
-void ZigzagMatrix(imatrix,omatrix)
-     int *imatrix;
-     int *omatrix;
-{
-  BEGIN("ZigzagMatrix");
-  int *tptr;
+void ZigzagMatrix(int *imatrix, int *omatrix) {
+    BEGIN("ZigzagMatrix");
+    int *tptr;
 
-  for(tptr=zigzag_index;tptr<zigzag_index+BLOCKSIZE;tptr++)
-    {
-      omatrix[*tptr] = *(imatrix++);
+    for (tptr = zigzag_index; tptr < zigzag_index + BLOCKSIZE; tptr++) {
+        omatrix[*tptr] = *(imatrix++);
     }
 }
-
 /*BFUNC
 
 PrintMatrix() prints an 8x8 matrix in row/column form. 
 
 EFUNC*/
 
-void PrintMatrix(matrix)
-     int *matrix;
-{
-  BEGIN("PrintMatrix");
-  int i,j;
+void PrintMatrix(int *matrix) {
+    BEGIN("PrintMatrix");
+    int i, j;
 
-  if (matrix)
-    {
-      for(i=0;i<BLOCKHEIGHT;i++)
-	{
-	  for(j=0;j<BLOCKWIDTH;j++) {printf("%6d ",*(matrix++));}
-	  printf("\n");
-	}
+    if (matrix) {
+        for (i = 0; i < BLOCKHEIGHT; i++) {
+            for (j = 0; j < BLOCKWIDTH; j++) {
+                printf("%6d ", *(matrix++));
+            }
+            printf("\n");
+        }
+    } else {
+        printf("Null\n");
     }
-  else {printf("Null\n");}
 }
-
 
 /*BFUNC
 
@@ -608,13 +594,13 @@ ClearMatrix() sets all the elements of a matrix to be zero.
 
 EFUNC*/
 
-void ClearMatrix(matrix)
-     int *matrix;
-{
-  BEGIN("ClearMatrix");
-  int *mptr;
+void ClearMatrix(int *matrix) {
+    BEGIN("ClearMatrix");
+    int *mptr;
 
-  for(mptr=matrix;mptr<matrix+BLOCKSIZE;mptr++) {*mptr = 0;}
+    for (mptr = matrix; mptr < matrix + BLOCKSIZE; mptr++) {
+        *mptr = 0;
+    }
 }
 
 /*END*/
