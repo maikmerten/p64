@@ -19,7 +19,7 @@ clean:
 	rm *.o p64
 
 p64: $(BASELINE)
-	$(CC) $(PFLAGS) $(BASELINE) -lm -o p64
+	$(CC) $(PFLAGS) -I. $(BASELINE) -lm -o p64
 
 p64.o: p64.c $(DEFS) vidinput.h ogg/os_types.h
 codec.o: codec.c $(DEFS)
