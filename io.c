@@ -82,6 +82,10 @@ video_input_ycbcr frame;
 char tag[5];
 video_input vid;
 
+/* y4m output */
+int y4moutput;
+FILE *y4mout;
+
 /*START*/
 
 /*BFUNC
@@ -683,10 +687,25 @@ void WriteIob()
   BEGIN("WriteIob");
   int i;
 
-  for(i=0;i<CFrame->NumberComponents;i++)
-    {
-      SaveMem(CFrame->ComponentFileName[i],CFrame->Iob[i]->mem);
-    }  
+	if(!y4moutput)
+	{
+		for(i=0;i<CFrame->NumberComponents;i++)
+		{
+			SaveMem(CFrame->ComponentFileName[i],CFrame->Iob[i]->mem);
+		}
+	}
+	else
+	{
+		MEM *mem;
+		
+		fwrite("FRAME\n",sizeof(unsigned char),sizeof("FRAME\n")-1,y4mout);
+
+		for(i=0;i<CFrame->NumberComponents;i++)
+		{
+			mem = CFrame->Iob[i]->mem;
+			fwrite(mem->data,sizeof(unsigned char),mem->width*mem->height,y4mout);
+		}
+	}
 }
 
 /*BFUNC

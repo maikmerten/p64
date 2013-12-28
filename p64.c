@@ -243,6 +243,13 @@ video_input_ycbcr frame;
 char tag[5];
 video_input vid;
 
+/* y4m output */
+#define Y4M__CIFHEADER "YUV4MPEG2 W352 H288 C420jpeg Ip F30000:1001\n"
+#define Y4M_QCIFHEADER "YUV4MPEG2 W176 H144 C420jpeg Ip F30000:1001\n"
+#define Y4M_NTSCHEADER "YUV4MPEG2 W352 H240 C420jpeg Ip F30000:1001\n"
+int y4moutput = 0;
+FILE *y4mout = NULL;
+
 /*START*/
 /*BFUNC
 
@@ -284,7 +291,7 @@ int main(argc,argv)
 	}
       else if (!strcmp("-y4m",argv[i]))
 	{
-	  y4minput = 1;
+	  y4minput = y4moutput = 1;
 	}
       else if (*(argv[i]) == '-')
  	{
@@ -411,11 +418,6 @@ int main(argc,argv)
     }
   else
     {
-		if(y4minput)
-		{
-			printf("Cannot output to y4m.\n");
-			exit(ERROR_BOUNDS);
-		}
       p64DecodeSequence();
     }
   exit(ErrorValue);
@@ -1027,6 +1029,15 @@ void p64DecodeSequence()
       exit(ErrorValue);
     }
   Active=0;
+	if(y4moutput)
+	{
+		sprintf(CFrame->ComponentFileName[0],"%s%s",
+			CFrame->ComponentFilePrefix[0],
+			CFrame->ComponentFileSuffix[0]);
+
+		y4mout = fopen(CFrame->ComponentFileName[0],"wb");
+	}
+
   while(1)
     {
       if (!EndFrame)
@@ -1044,7 +1055,8 @@ void p64DecodeSequence()
 		    TemporalReference)
 		{
 		  printf("END> Frame: %d\n",CurrentFrame);
-		  MakeFileNames();
+			if(!y4moutput)
+				MakeFileNames();
 		  WriteIob();
 		  CurrentFrame++;
 		}
@@ -1072,6 +1084,21 @@ void p64DecodeSequence()
 		    }
 		  else ImageType=IT_QCIF;
 		}
+			if(y4moutput)
+			{
+				switch(ImageType) {
+					case IT_CIF:
+						fwrite(Y4M__CIFHEADER,sizeof(unsigned char),sizeof(Y4M__CIFHEADER)-1,y4mout);
+						break;
+					case IT_NTSC:
+						fwrite(Y4M_NTSCHEADER,sizeof(unsigned char),sizeof(Y4M_NTSCHEADER)-1,y4mout);
+						break;
+					case IT_QCIF:
+					default:
+						fwrite(Y4M_QCIFHEADER,sizeof(unsigned char),sizeof(Y4M_QCIFHEADER)-1,y4mout);
+				}
+			}
+			
 	      SetCCITT();
 	      if (Loud > MUTE)
 		{
@@ -1092,6 +1119,8 @@ void p64DecodeSequence()
       EndFrame = p64DecodeGOB();                     /* Else decode the GOB */
     }
   srclose();
+	if(y4moutput)
+		fclose(y4mout);
 }
 
 /*BFUNC
@@ -1391,7 +1420,7 @@ void SetCCITT()
       if (*CFrame->ComponentFileSuffix[i]=='\0')
 	{
 	  strcpy(CFrame->ComponentFileSuffix[i],
-		 y4minput ? ".y4m" : DefaultSuffix[i]);
+		 y4minput||y4moutput ? ".y4m" : DefaultSuffix[i]);
 	}
     }
   CFS->NumberComponents = 3;
@@ -1492,7 +1521,7 @@ void Help()
   printf("-x gives the target filesize in kilobits. (overrides -r option.)\n");
   printf("-y enables Reference DCT.\n");
   printf("-z gives the ComponentFileSuffixes (repeatable).\n");
-  printf("-y4m treat ComponentFilePrefix1ComponentFileSuffix1 as a single y4m file that contains all 3 components. (encoding only. ComponentFileSuffix defaults to .y4m if not specified.)\n");
+  printf("-y4m treat ComponentFilePrefix1ComponentFileSuffix1 as a single y4m file that contains all 3 components. (ComponentFileSuffix defaults to .y4m if not specified.)\n");
   printf("-- read y4m from stdin. ComponentFilePrefixes and ComponentFileSuffixes will not be used.\n");
 }
 
