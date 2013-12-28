@@ -123,7 +123,8 @@ int LastFrame=0;
 int PreviousFrame=0;
 int NumberFrames=0;
 int TransmittedFrames=0;
-int FrameRate=30;
+int FrameRate=30000;
+int FrameRateDiv=1001;
 
 int FrameSkip=1;
 
@@ -231,7 +232,7 @@ vFunc *UseIDct = ChenIDct;
 #define BufferContents() (mwtell() + BufferOffset -\
 			  (((CurrentGOB*NumberMDU)+CurrentMDU)\
 			   *Rate*FrameSkip\
-			  /(NumberGOB*NumberMDU*FrameRate)))
+			  /(NumberGOB*NumberMDU*FrameRate/FrameRateDiv)))
 #define BufferSize() (Rate/4) /*In bits */
 
 /* y4m input */
@@ -244,9 +245,9 @@ char tag[5];
 video_input vid;
 
 /* y4m output */
-#define Y4M__CIFHEADER "YUV4MPEG2 W352 H288 C420jpeg Ip F30000:1001\n"
-#define Y4M_QCIFHEADER "YUV4MPEG2 W176 H144 C420jpeg Ip F30000:1001\n"
-#define Y4M_NTSCHEADER "YUV4MPEG2 W352 H240 C420jpeg Ip F30000:1001\n"
+#define Y4M__CIFHEADER "YUV4MPEG2 W352 H288 C420jpeg Ip"
+#define Y4M_QCIFHEADER "YUV4MPEG2 W176 H144 C420jpeg Ip"
+#define Y4M_NTSCHEADER "YUV4MPEG2 W352 H240 C420jpeg Ip"
 int y4moutput = 0;
 FILE *y4mout = NULL;
 
@@ -311,8 +312,32 @@ int main(argc,argv)
 	      CImage->p64Mode |= P_DECODER;
  	      break; 
 	    case 'f':
-	      FrameRate = atoi(argv[++i]);
+        {
+          size_t numlen = strcspn(argv[++i],"./:");
+          size_t ratelen = strlen(argv[i]);
+          FrameRate = atoi(argv[i]);
+
+          if(ratelen > numlen)
+          {
+            if(argv[i][numlen] == '.')
+            {
+              int f;
+              FrameRateDiv = 1;
+              for(f = strlen(&argv[i][numlen+1]); f>0; --f )
+                FrameRateDiv *= 10;
+              FrameRate = FrameRate * FrameRateDiv + atoi(&argv[i][numlen+1]);
+            }
+            else
+            {
+              FrameRateDiv = atoi(&argv[i][numlen+1]);
+	          if( 1 > FrameRateDiv )
+                FrameRateDiv = 1;
+            }
+	      }
+	      else
+	        FrameRateDiv = 1;
 	      break;
+	    }
 	    case 'i':
 	      SearchLimit = atoi(argv[++i]);
 	      BoundValue(SearchLimit,1,31,"SearchLimit");
@@ -538,7 +563,7 @@ void p64EncodeSequence()
       PrintFrame();
     }
   if (FileSizeBits)  /* Rate is determined by bits/second. */
-    Rate=(FileSizeBits*FrameRate)/(FrameSkip*(LastFrame-CurrentFrame+1));
+    Rate=(FileSizeBits*FrameRate/FrameRateDiv)/(FrameSkip*(LastFrame-CurrentFrame+1));
   if (Rate)
     {
       QDFact = (Rate/320);
@@ -670,7 +695,7 @@ void p64EncodeFrame()
 		 BufferOffset);
 	}
       /* Take off standard deduction afterwards. */
-      BufferOffset -= (Rate*FrameSkip/FrameRate);
+      BufferOffset -= (Rate*FrameSkip*FrameRateDiv/FrameRate);
     }
   else if (CurrentFrame==StartFrame)
     FirstFrameBits = TotalBits;
@@ -1097,6 +1122,7 @@ void p64DecodeSequence()
 					default:
 						fwrite(Y4M_QCIFHEADER,sizeof(unsigned char),sizeof(Y4M_QCIFHEADER)-1,y4mout);
 				}
+				fprintf(y4mout," F%i:%i\n", FrameRate, FrameRateDiv);
 			}
 			
 	      SetCCITT();
@@ -1509,7 +1535,7 @@ void Help()
   printf("-b is the end filename index. [inclusive] Defaults to 0.\n");
   printf("-c forces cif large-frame decoding (can be used with all input modes).\n");
   printf("-d enables the decoder\n");
-  printf("-f gives the frame rate (default 30).\n");
+  printf("-f gives the frame rate (default 30000:1001). Format can be a ratio A:B, a fraction C/D or decimal E.F\n");
   printf("-i gives the MC search area: between 1 and 31 (default 15).\n");
   printf("-k is the frame skip index. Frames/s = FrameRate/FrameSkip.\n");
   printf("-o enables the interpreter.\n");
