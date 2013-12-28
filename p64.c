@@ -1053,15 +1053,6 @@ void p64DecodeSequence()
       exit(ErrorValue);
     }
   Active=0;
-	if(y4mio)
-	{
-		sprintf(CFrame->ComponentFileName[0],"%s%s",
-			CFrame->ComponentFilePrefix[0],
-			CFrame->ComponentFileSuffix[0]);
-
-		y4mout = fopen(CFrame->ComponentFileName[0],"wb");
-	}
-
   while(1)
     {
       if (!EndFrame)
@@ -1108,8 +1099,15 @@ void p64DecodeSequence()
 		    }
 		  else ImageType=IT_QCIF;
 		}
+	      SetCCITT();
 			if(y4mio)
 			{
+				sprintf(CFrame->ComponentFileName[0],"%s%s",
+					CFrame->ComponentFilePrefix[0],
+					CFrame->ComponentFileSuffix[0]);
+		
+				y4mout = fopen(CFrame->ComponentFileName[0],"wb");
+
 				switch(ImageType) {
 					case IT_CIF:
 						fwrite(Y4M__CIFHEADER,sizeof(unsigned char),sizeof(Y4M__CIFHEADER)-1,y4mout);
@@ -1124,7 +1122,6 @@ void p64DecodeSequence()
 				fprintf(y4mout," F%i:%i\n", FrameRate, FrameRateDiv);
 			}
 			
-	      SetCCITT();
 	      if (Loud > MUTE)
 		{
 		  PrintImage();
