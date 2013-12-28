@@ -238,7 +238,7 @@ vFunc *UseIDct = ChenIDct;
 /* y4m input */
 #include "vidinput.h"
 
-int y4minput = 0;
+int y4mio = 0;
 int y4mfromstdin = 0;
 video_input_ycbcr frame;
 char tag[5];
@@ -248,7 +248,6 @@ video_input vid;
 #define Y4M__CIFHEADER "YUV4MPEG2 W352 H288 C420jpeg Ip"
 #define Y4M_QCIFHEADER "YUV4MPEG2 W176 H144 C420jpeg Ip"
 #define Y4M_NTSCHEADER "YUV4MPEG2 W352 H240 C420jpeg Ip"
-int y4moutput = 0;
 FILE *y4mout = NULL;
 
 /*START*/
@@ -292,7 +291,7 @@ int main(argc,argv)
 	}
       else if (!strcmp("-y4m",argv[i]))
 	{
-	  y4minput = y4moutput = 1;
+	  y4mio = 1;
 	}
       else if (*(argv[i]) == '-')
  	{
@@ -534,7 +533,7 @@ void p64EncodeSequence()
   InitFS(OFS);
   ClearFS(OFS);
   swopen(CImage->StreamFileName);
-	if(y4minput)
+	if(y4mio)
 	{
 		sprintf(CFrame->ComponentFileName[0],"%s%s",
 					CFrame->ComponentFilePrefix[0],
@@ -618,7 +617,7 @@ void p64EncodeFrame()
   int x;
   
   printf("START>Frame: %d\n",CurrentFrame);
-	if(!y4minput)
+	if(!y4mio)
 	{
 		MakeFileNames();
 		VerifyFiles();
@@ -1054,7 +1053,7 @@ void p64DecodeSequence()
       exit(ErrorValue);
     }
   Active=0;
-	if(y4moutput)
+	if(y4mio)
 	{
 		sprintf(CFrame->ComponentFileName[0],"%s%s",
 			CFrame->ComponentFilePrefix[0],
@@ -1080,7 +1079,7 @@ void p64DecodeSequence()
 		    TemporalReference)
 		{
 		  printf("END> Frame: %d\n",CurrentFrame);
-			if(!y4moutput)
+			if(!y4mio)
 				MakeFileNames();
 		  WriteIob();
 		  CurrentFrame++;
@@ -1109,7 +1108,7 @@ void p64DecodeSequence()
 		    }
 		  else ImageType=IT_QCIF;
 		}
-			if(y4moutput)
+			if(y4mio)
 			{
 				switch(ImageType) {
 					case IT_CIF:
@@ -1145,7 +1144,7 @@ void p64DecodeSequence()
       EndFrame = p64DecodeGOB();                     /* Else decode the GOB */
     }
   srclose();
-	if(y4moutput)
+	if(y4mio)
 		fclose(y4mout);
 }
 
@@ -1446,7 +1445,7 @@ void SetCCITT()
       if (*CFrame->ComponentFileSuffix[i]=='\0')
 	{
 	  strcpy(CFrame->ComponentFileSuffix[i],
-		 y4minput||y4moutput ? ".y4m" : DefaultSuffix[i]);
+		 y4mio ? ".y4m" : DefaultSuffix[i]);
 	}
     }
   CFS->NumberComponents = 3;

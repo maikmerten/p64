@@ -77,13 +77,12 @@ int BlockHeight = BLOCKHEIGHT;
 /* y4m input */
 #include "vidinput.h"
 
-int y4minput;
+int y4mio;
 video_input_ycbcr frame;
 char tag[5];
 video_input vid;
 
 /* y4m output */
-int y4moutput;
 FILE *y4mout;
 
 /*START*/
@@ -616,7 +615,7 @@ void ReadIob()
   BEGIN("ReadIob");
   int i;
 
-	if(!y4minput)
+	if(!y4mio)
 	{
 		/*Read current frame's Y, Cb, Cr components from seperate files*/
 		for(i=0;i<CFrame->NumberComponents;i++)
@@ -687,7 +686,7 @@ void WriteIob()
   BEGIN("WriteIob");
   int i;
 
-	if(!y4moutput)
+	if(!y4mio)
 	{
 		for(i=0;i<CFrame->NumberComponents;i++)
 		{
