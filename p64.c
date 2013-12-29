@@ -376,9 +376,9 @@ int main(argc,argv)
 	    case 'z':
 	      strcpy(CFrame->ComponentFileSuffix[s++],argv[++i]);
 	      break;
-	    case '-':
+	    case '\0':
 	      y4mfromstdin = 1;
-	      strcpy(CFrame->ComponentFilePrefix[p++],"stdin");
+	      strcpy(CFrame->ComponentFilePrefix[p],"stdin");
 	      break;
 	    default:
 	      WHEREAMI();
@@ -535,6 +535,8 @@ void p64EncodeSequence()
   swopen(CImage->StreamFileName);
 	if(y4mio)
 	{
+		int i;
+
 		sprintf(CFrame->ComponentFileName[0],"%s%s",
 					CFrame->ComponentFilePrefix[0],
 					CFrame->ComponentFileSuffix[0]);
@@ -555,6 +557,11 @@ void p64EncodeSequence()
 		}
 		if(video_input_open(&vid,fin) < 0)
 			exit(-1);
+
+		/*Seek to StartFrame*/
+		for(i=StartFrame; i>0; --i)
+			if( !video_input_fetch_frame(&vid, frame, tag) )
+				exit(ERROR_BOUNDS);
 	}
   if (Loud > MUTE)
     {
@@ -1524,7 +1531,7 @@ void Help()
   printf("     [-i MCSearchLimit] [-q Quantization] [-v] [-y]\n");
   printf("     [-r Target Rate] [-x Target Filesize]\n");
   printf("     [-s StreamFile] [-z ComponentFileSuffix i]\n");
-  printf("     [-y4m [--]]\n");
+  printf("     [-y4m [-]]\n");
   printf("     ComponentFilePrefix1 [ComponentFilePrefix2 ComponentFilePrefix3]\n");
   printf("-NTSC (352x240)  -CIF (352x288) -QCIF (176x144) base filesizes.\n");
   printf("-a is the start filename index. [inclusive] Defaults to 0.\n");
@@ -1544,7 +1551,7 @@ void Help()
   printf("-y enables Reference DCT.\n");
   printf("-z gives the ComponentFileSuffixes (repeatable).\n");
   printf("-y4m treat ComponentFilePrefix1ComponentFileSuffix1 as a single y4m file that contains all 3 components. (ComponentFileSuffix defaults to .y4m if not specified.)\n");
-  printf("-- read y4m from stdin. ComponentFilePrefixes and ComponentFileSuffixes will not be used.\n");
+  printf("- read y4m from stdin. ComponentFilePrefixes and ComponentFileSuffixes will not be used.\n");
 }
 
 /*BFUNC

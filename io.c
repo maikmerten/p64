@@ -629,7 +629,9 @@ void ReadIob()
 	else
 	{
 		/*Read current frame's Y, Cb, Cr components from single y4m file*/
-		video_input_fetch_frame(&vid, frame, tag);
+		if( !video_input_fetch_frame(&vid, frame, tag) )
+			exit(ERROR_BOUNDS);
+
 		for(i=0;i<CFrame->NumberComponents;i++)
 		{
 			if (!CFrame->Iob[i]->mem)
