@@ -28,7 +28,7 @@ This file does much of the motion estimation and compensation.
 
 #include "globals.h"
 
-#ifdef SSE2
+#ifdef __SSE2__
 #include "emmintrin.h"
 #endif
 
@@ -91,12 +91,12 @@ void initmc()
 
 __inline int ComputeError(unsigned char *bptr, unsigned char *cptr, MEM *rm, MEM *cm) {
     int i,residue,error;
-#ifdef SSE2
+#ifdef __SSE2__
     __m128i a,b;
 #endif
     error = 0;
     for(i=0;i<16;i++) {
-#ifdef SSE2
+#ifdef __SSE2__
         a = _mm_loadu_si128((__m128i *) bptr);
         b = _mm_loadu_si128((__m128i *) cptr);
         a = _mm_sad_epu8(a, b);
