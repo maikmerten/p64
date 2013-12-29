@@ -508,6 +508,7 @@ extern FRAME *CFrame;
 extern IMAGE *CImage;
 extern int ErrorValue;
 extern int FrameRate;
+extern int FrameRateDiv;
 extern int FrameSkip;
 extern int SearchLimit;
 extern int ImageType;
@@ -1108,6 +1109,7 @@ void parser()
 	case R_FRAMERATE:
 	  GETINTEGER(ntoken);
 	  FrameRate = yyint;
+    FrameRateDiv = 1;
 	  break;
 	case R_FRAMESKIP:
 	  GETINTEGER(ntoken);

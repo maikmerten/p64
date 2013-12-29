@@ -77,10 +77,13 @@ int BlockHeight = BLOCKHEIGHT;
 /* y4m input */
 #include "vidinput.h"
 
-int y4minput;
+int y4mio;
 video_input_ycbcr frame;
 char tag[5];
 video_input vid;
+
+/* y4m output */
+FILE *y4mout;
 
 /*START*/
 
@@ -612,7 +615,7 @@ void ReadIob()
   BEGIN("ReadIob");
   int i;
 
-	if(!y4minput)
+	if(!y4mio)
 	{
 		/*Read current frame's Y, Cb, Cr components from seperate files*/
 		for(i=0;i<CFrame->NumberComponents;i++)
@@ -626,7 +629,9 @@ void ReadIob()
 	else
 	{
 		/*Read current frame's Y, Cb, Cr components from single y4m file*/
-		video_input_fetch_frame(&vid, frame, tag);
+		if( !video_input_fetch_frame(&vid, frame, tag) )
+			exit(ERROR_BOUNDS);
+
 		for(i=0;i<CFrame->NumberComponents;i++)
 		{
 			if (!CFrame->Iob[i]->mem)
@@ -683,10 +688,25 @@ void WriteIob()
   BEGIN("WriteIob");
   int i;
 
-  for(i=0;i<CFrame->NumberComponents;i++)
-    {
-      SaveMem(CFrame->ComponentFileName[i],CFrame->Iob[i]->mem);
-    }  
+	if(!y4mio)
+	{
+		for(i=0;i<CFrame->NumberComponents;i++)
+		{
+			SaveMem(CFrame->ComponentFileName[i],CFrame->Iob[i]->mem);
+		}
+	}
+	else
+	{
+		MEM *mem;
+		
+		fwrite("FRAME\n",sizeof(unsigned char),sizeof("FRAME\n")-1,y4mout);
+
+		for(i=0;i<CFrame->NumberComponents;i++)
+		{
+			mem = CFrame->Iob[i]->mem;
+			fwrite(mem->data,sizeof(unsigned char),mem->width*mem->height,y4mout);
+		}
+	}
 }
 
 /*BFUNC

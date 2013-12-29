@@ -123,7 +123,8 @@ int LastFrame=0;
 int PreviousFrame=0;
 int NumberFrames=0;
 int TransmittedFrames=0;
-int FrameRate=30;
+int FrameRate=30000;
+int FrameRateDiv=1001;
 
 int FrameSkip=1;
 
@@ -231,17 +232,23 @@ vFunc *UseIDct = ChenIDct;
 #define BufferContents() (mwtell() + BufferOffset -\
 			  (((CurrentGOB*NumberMDU)+CurrentMDU)\
 			   *Rate*FrameSkip\
-			  /(NumberGOB*NumberMDU*FrameRate)))
+			  /(NumberGOB*NumberMDU*FrameRate/FrameRateDiv)))
 #define BufferSize() (Rate/4) /*In bits */
 
 /* y4m input */
 #include "vidinput.h"
 
-int y4minput = 0;
+int y4mio = 0;
 int y4mfromstdin = 0;
 video_input_ycbcr frame;
 char tag[5];
 video_input vid;
+
+/* y4m output */
+#define Y4M__CIFHEADER "YUV4MPEG2 W352 H288 C420jpeg Ip"
+#define Y4M_QCIFHEADER "YUV4MPEG2 W176 H144 C420jpeg Ip"
+#define Y4M_NTSCHEADER "YUV4MPEG2 W352 H240 C420jpeg Ip"
+FILE *y4mout = NULL;
 
 /*START*/
 /*BFUNC
@@ -284,7 +291,7 @@ int main(argc,argv)
 	}
       else if (!strcmp("-y4m",argv[i]))
 	{
-	  y4minput = 1;
+	  y4mio = 1;
 	}
       else if (*(argv[i]) == '-')
  	{
@@ -304,8 +311,32 @@ int main(argc,argv)
 	      CImage->p64Mode |= P_DECODER;
  	      break; 
 	    case 'f':
-	      FrameRate = atoi(argv[++i]);
+        {
+          size_t numlen = strcspn(argv[++i],"./:");
+          size_t ratelen = strlen(argv[i]);
+          FrameRate = atoi(argv[i]);
+
+          if(ratelen > numlen)
+          {
+            if(argv[i][numlen] == '.')
+            {
+              int f;
+              FrameRateDiv = 1;
+              for(f = strlen(&argv[i][numlen+1]); f>0; --f )
+                FrameRateDiv *= 10;
+              FrameRate = FrameRate * FrameRateDiv + atoi(&argv[i][numlen+1]);
+            }
+            else
+            {
+              FrameRateDiv = atoi(&argv[i][numlen+1]);
+	          if( 1 > FrameRateDiv )
+                FrameRateDiv = 1;
+            }
+	      }
+	      else
+	        FrameRateDiv = 1;
 	      break;
+	    }
 	    case 'i':
 	      SearchLimit = atoi(argv[++i]);
 	      BoundValue(SearchLimit,1,31,"SearchLimit");
@@ -345,9 +376,9 @@ int main(argc,argv)
 	    case 'z':
 	      strcpy(CFrame->ComponentFileSuffix[s++],argv[++i]);
 	      break;
-	    case '-':
+	    case '\0':
 	      y4mfromstdin = 1;
-	      strcpy(CFrame->ComponentFilePrefix[p++],"stdin");
+	      strcpy(CFrame->ComponentFilePrefix[p],"stdin");
 	      break;
 	    default:
 	      WHEREAMI();
@@ -411,11 +442,6 @@ int main(argc,argv)
     }
   else
     {
-		if(y4minput)
-		{
-			printf("Cannot output to y4m.\n");
-			exit(ERROR_BOUNDS);
-		}
       p64DecodeSequence();
     }
   exit(ErrorValue);
@@ -507,8 +533,10 @@ void p64EncodeSequence()
   InitFS(OFS);
   ClearFS(OFS);
   swopen(CImage->StreamFileName);
-	if(y4minput)
+	if(y4mio)
 	{
+		int i;
+
 		sprintf(CFrame->ComponentFileName[0],"%s%s",
 					CFrame->ComponentFilePrefix[0],
 					CFrame->ComponentFileSuffix[0]);
@@ -529,6 +557,11 @@ void p64EncodeSequence()
 		}
 		if(video_input_open(&vid,fin) < 0)
 			exit(-1);
+
+		/*Seek to StartFrame*/
+		for(i=StartFrame; i>0; --i)
+			if( !video_input_fetch_frame(&vid, frame, tag) )
+				exit(ERROR_BOUNDS);
 	}
   if (Loud > MUTE)
     {
@@ -536,7 +569,7 @@ void p64EncodeSequence()
       PrintFrame();
     }
   if (FileSizeBits)  /* Rate is determined by bits/second. */
-    Rate=(FileSizeBits*FrameRate)/(FrameSkip*(LastFrame-CurrentFrame+1));
+    Rate=(FileSizeBits*FrameRate/FrameRateDiv)/(FrameSkip*(LastFrame-CurrentFrame+1));
   if (Rate)
     {
       QDFact = (Rate/320);
@@ -591,7 +624,7 @@ void p64EncodeFrame()
   int x;
   
   printf("START>Frame: %d\n",CurrentFrame);
-	if(!y4minput)
+	if(!y4mio)
 	{
 		MakeFileNames();
 		VerifyFiles();
@@ -668,7 +701,7 @@ void p64EncodeFrame()
 		 BufferOffset);
 	}
       /* Take off standard deduction afterwards. */
-      BufferOffset -= (Rate*FrameSkip/FrameRate);
+      BufferOffset -= (Rate*FrameSkip*FrameRateDiv/FrameRate);
     }
   else if (CurrentFrame==StartFrame)
     FirstFrameBits = TotalBits;
@@ -1044,7 +1077,8 @@ void p64DecodeSequence()
 		    TemporalReference)
 		{
 		  printf("END> Frame: %d\n",CurrentFrame);
-		  MakeFileNames();
+			if(!y4mio)
+				MakeFileNames();
 		  WriteIob();
 		  CurrentFrame++;
 		}
@@ -1073,6 +1107,28 @@ void p64DecodeSequence()
 		  else ImageType=IT_QCIF;
 		}
 	      SetCCITT();
+			if(y4mio)
+			{
+				sprintf(CFrame->ComponentFileName[0],"%s%s",
+					CFrame->ComponentFilePrefix[0],
+					CFrame->ComponentFileSuffix[0]);
+		
+				y4mout = fopen(CFrame->ComponentFileName[0],"wb");
+
+				switch(ImageType) {
+					case IT_CIF:
+						fwrite(Y4M__CIFHEADER,sizeof(unsigned char),sizeof(Y4M__CIFHEADER)-1,y4mout);
+						break;
+					case IT_NTSC:
+						fwrite(Y4M_NTSCHEADER,sizeof(unsigned char),sizeof(Y4M_NTSCHEADER)-1,y4mout);
+						break;
+					case IT_QCIF:
+					default:
+						fwrite(Y4M_QCIFHEADER,sizeof(unsigned char),sizeof(Y4M_QCIFHEADER)-1,y4mout);
+				}
+				fprintf(y4mout," F%i:%i\n", FrameRate, FrameRateDiv);
+			}
+			
 	      if (Loud > MUTE)
 		{
 		  PrintImage();
@@ -1092,6 +1148,8 @@ void p64DecodeSequence()
       EndFrame = p64DecodeGOB();                     /* Else decode the GOB */
     }
   srclose();
+	if(y4mio)
+		fclose(y4mout);
 }
 
 /*BFUNC
@@ -1391,7 +1449,7 @@ void SetCCITT()
       if (*CFrame->ComponentFileSuffix[i]=='\0')
 	{
 	  strcpy(CFrame->ComponentFileSuffix[i],
-		 y4minput ? ".y4m" : DefaultSuffix[i]);
+		 y4mio ? ".y4m" : DefaultSuffix[i]);
 	}
     }
   CFS->NumberComponents = 3;
@@ -1473,14 +1531,14 @@ void Help()
   printf("     [-i MCSearchLimit] [-q Quantization] [-v] [-y]\n");
   printf("     [-r Target Rate] [-x Target Filesize]\n");
   printf("     [-s StreamFile] [-z ComponentFileSuffix i]\n");
-  printf("     [-y4m [--]]\n");
+  printf("     [-y4m [-]]\n");
   printf("     ComponentFilePrefix1 [ComponentFilePrefix2 ComponentFilePrefix3]\n");
   printf("-NTSC (352x240)  -CIF (352x288) -QCIF (176x144) base filesizes.\n");
   printf("-a is the start filename index. [inclusive] Defaults to 0.\n");
   printf("-b is the end filename index. [inclusive] Defaults to 0.\n");
   printf("-c forces cif large-frame decoding (can be used with all input modes).\n");
   printf("-d enables the decoder\n");
-  printf("-f gives the frame rate (default 30).\n");
+  printf("-f gives the frame rate (default 30000:1001). Format can be a ratio A:B, a fraction C/D or decimal E.F\n");
   printf("-i gives the MC search area: between 1 and 31 (default 15).\n");
   printf("-k is the frame skip index. Frames/s = FrameRate/FrameSkip.\n");
   printf("-o enables the interpreter.\n");
@@ -1492,8 +1550,8 @@ void Help()
   printf("-x gives the target filesize in kilobits. (overrides -r option.)\n");
   printf("-y enables Reference DCT.\n");
   printf("-z gives the ComponentFileSuffixes (repeatable).\n");
-  printf("-y4m treat ComponentFilePrefix1ComponentFileSuffix1 as a single y4m file that contains all 3 components. (encoding only. ComponentFileSuffix defaults to .y4m if not specified.)\n");
-  printf("-- read y4m from stdin. ComponentFilePrefixes and ComponentFileSuffixes will not be used.\n");
+  printf("-y4m treat ComponentFilePrefix1ComponentFileSuffix1 as a single y4m file that contains all 3 components. (ComponentFileSuffix defaults to .y4m if not specified.)\n");
+  printf("- read y4m from stdin. ComponentFilePrefixes and ComponentFileSuffixes will not be used.\n");
 }
 
 /*BFUNC
