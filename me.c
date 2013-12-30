@@ -91,12 +91,44 @@ void initmc()
 
 __inline int ComputeError(unsigned char *bptr, unsigned char *cptr, MEM *rm, MEM *cm) {
     int i,residue,error;
-#ifdef __SSE2__
+#ifdef ARMSIMD32
+    int32_t a,b;
+#elif __SSE2__
     __m128i a,b;
 #endif
     error = 0;
     for(i=0;i<16;i++) {
-#ifdef __SSE2__
+#ifdef ARMSIMD32
+	a = *((int32_t*)bptr);
+	b = *((int32_t*)cptr);
+	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
+	error += a;
+	bptr += 4;
+	cptr += 4;
+
+	a = *((int32_t*)bptr);
+	b = *((int32_t*)cptr);
+	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
+	error += a;
+	bptr += 4;
+	cptr += 4;
+
+	a = *((int32_t*)bptr);
+	b = *((int32_t*)cptr);
+	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
+	error += a;
+	bptr += 4;
+	cptr += 4;
+
+	a = *((int32_t*)bptr);
+	b = *((int32_t*)cptr);
+	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
+	error += a;
+
+	if (error COMPARISON MV) break;
+	bptr += rm->width - 12;
+	cptr += cm->width - 12;
+#elif __SSE2__
         a = _mm_loadu_si128((__m128i *) bptr);
         b = _mm_loadu_si128((__m128i *) cptr);
         a = _mm_sad_epu8(a, b);
