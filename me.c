@@ -103,31 +103,25 @@ __inline int ComputeError(unsigned char *bptr, unsigned char *cptr, MEM *rm, MEM
 	b = *((int32_t*)cptr);
 	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
 	error += a;
-	bptr += 4;
-	cptr += 4;
 
-	a = *((int32_t*)bptr);
-	b = *((int32_t*)cptr);
+	a = *((int32_t*)(bptr + 4));
+	b = *((int32_t*)(cptr + 4));
 	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
 	error += a;
-	bptr += 4;
-	cptr += 4;
 
-	a = *((int32_t*)bptr);
-	b = *((int32_t*)cptr);
+	a = *((int32_t*)(bptr + 8));
+	b = *((int32_t*)(cptr + 8));
 	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
 	error += a;
-	bptr += 4;
-	cptr += 4;
 
-	a = *((int32_t*)bptr);
-	b = *((int32_t*)cptr);
+	a = *((int32_t*)(bptr + 12));
+	b = *((int32_t*)(cptr + 12));
 	asm volatile ("usad8 %[result], %[op1], %[op2]" : [result] "=r" (a): [op1] "0" (a), [op2] "r" (b));
 	error += a;
 
 	if (error COMPARISON MV) break;
-	bptr += rm->width - 12;
-	cptr += cm->width - 12;
+	bptr += rm->width;
+	cptr += cm->width;
 #elif __SSE2__
         a = _mm_loadu_si128((__m128i *) bptr);
         b = _mm_loadu_si128((__m128i *) cptr);
