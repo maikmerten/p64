@@ -655,42 +655,14 @@ void p64EncodeFrame()
   x = mwtell();
   LastBits = x - TotalBits;
   TotalBits = x;
-  printf("Total No of Bits: %8d  Bits for Frame: %8d\n",
-	 TotalBits,LastBits);
-  if (Rate)
-    {
-      printf("Buffer Contents: %8d  out of: %8d\n",
-	     BufferContents(),
-	     BufferSize());
-    }
-  printf("MB Attribute Bits: %6d  MV Bits: %6d   EOB Bits: %6d\n",
-	 MacroAttributeBits,MotionVectorBits,EOBBits);
-  printf("Y Bits: %7d  U Bits: %7d  V Bits: %7d  Total Bits: %7d\n",
-	 YCoefBits,UCoefBits,VCoefBits,(YCoefBits+UCoefBits+VCoefBits));
-  printf("MV StepSize: %f  MV NumberNonZero: %f  MV NumberZero: %f\n",
-	 (double) ((double) QSum)/((double)(QUse)),
-	 (double) ((double) NumberNZ)/
-	 ((double)(NumberGOB*NumberMDU*6)),
-	 (double) ((double) (NumberGOB*NumberMDU*6*64)- NumberNZ)/
-	 ((double)(NumberGOB*NumberMDU*6)));
   RCStore[CurrentFrame-StartFrame].size = LastBits;
-  printf("Code MType: ");
-  for(x=0;x<10;x++) printf("%5d",x);
-  printf("\n");
-  printf("Macro Freq: ");
-  for(x=0;x<10;x++) printf("%5d",MacroTypeFrequency[x]);
-  printf("\n");
-  printf("Y     Freq: ");
-  for(x=0;x<10;x++) printf("%5d",YTypeFrequency[x]);
-  printf("\n");
-  printf("UV    Freq: ");
-  for(x=0;x<10;x++) printf("%5d",UVTypeFrequency[x]);
-  printf("\n");
 
   SwapFS(CFS,OFS);
-
-  Statistics();
+  
+  if(Loud > MUTE) PrintFrameStatistics();
+  
   printf("END>Frame: %d\n",CurrentFrame);
+  
   if (Rate)
     {
       if (CurrentFrame==StartFrame)
@@ -1316,6 +1288,46 @@ void PrintFrame()
 	  PrintIob();
 	}
     }
+}
+/*BFUNC
+
+PrintFrameStatistics() prints the statistics for the last encoded frame.
+
+EFUNC*/
+
+void PrintFrameStatistics() {
+    BEGIN("PrintFrameStatistics");
+    int x;
+    printf("Total No of Bits: %8d  Bits for Frame: %8d\n",
+            TotalBits, LastBits);
+    if (Rate) {
+        printf("Buffer Contents: %8d  out of: %8d\n",
+                BufferContents(),
+                BufferSize());
+    }
+    printf("MB Attribute Bits: %6d  MV Bits: %6d   EOB Bits: %6d\n",
+            MacroAttributeBits, MotionVectorBits, EOBBits);
+    printf("Y Bits: %7d  U Bits: %7d  V Bits: %7d  Total Bits: %7d\n",
+            YCoefBits, UCoefBits, VCoefBits, (YCoefBits + UCoefBits + VCoefBits));
+    printf("MV StepSize: %f  MV NumberNonZero: %f  MV NumberZero: %f\n",
+            (double) ((double) QSum) / ((double) (QUse)),
+            (double) ((double) NumberNZ) /
+            ((double) (NumberGOB * NumberMDU * 6)),
+            (double) ((double) (NumberGOB * NumberMDU * 6 * 64) - NumberNZ) /
+            ((double) (NumberGOB * NumberMDU * 6)));
+    printf("Code MType: ");
+    for (x = 0; x < 10; x++) printf("%5d", x);
+    printf("\n");
+    printf("Macro Freq: ");
+    for (x = 0; x < 10; x++) printf("%5d", MacroTypeFrequency[x]);
+    printf("\n");
+    printf("Y     Freq: ");
+    for (x = 0; x < 10; x++) printf("%5d", YTypeFrequency[x]);
+    printf("\n");
+    printf("UV    Freq: ");
+    for (x = 0; x < 10; x++) printf("%5d", UVTypeFrequency[x]);
+    printf("\n");
+    Statistics();
 }
 
 /*BFUNC
