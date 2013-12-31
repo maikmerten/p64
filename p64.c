@@ -43,6 +43,7 @@ extern void p64DecodeSequence();
 extern int p64DecodeGOB();
 extern void PrintImage();
 extern void PrintFrame();
+extern void PrintFrameStatistics();
 extern void MakeImage();
 extern void MakeFrame();
 extern void MakeFstore();
