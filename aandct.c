@@ -51,7 +51,7 @@ void AanDct(int* x, int* y) {
     FLOAT t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,tmp;
     FLOAT pass0out[64];
     
-    printf("\n\n");
+    //printf("\n\n");
     
     for(pass=0; pass < 2; ++pass) {
 
@@ -76,11 +76,11 @@ void AanDct(int* x, int* y) {
             idx6 = idx5 + increment;
             idx7 = idx6 + increment;
             
-            if(pass == 0) {
+            /*if(pass == 0) {
                 printf("row %d %d %d %d %d %d %d %d\n", idx0,idx1,idx2,idx3,idx4,idx5,idx6,idx7);
             } else {
                 printf("col %d %d %d %d %d %d %d %d\n", idx0,idx1,idx2,idx3,idx4,idx5,idx6,idx7);
-            }
+            }*/
             
             if(pass == 0) {
                 t0 = (FLOAT) x[idx0];
