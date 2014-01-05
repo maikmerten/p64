@@ -155,7 +155,7 @@ void AanDct(int* x, int* y) {
             t4 = t12 + t15;
             t5 = t13 + t14;
             t6 = t13 + (-t14);
-            t7 = (-t12) + 15;
+            t7 = (-t12) + t15;
             
             
             if(pass == 0) {
