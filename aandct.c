@@ -165,23 +165,23 @@ void AanDct(int* x, int* y) {
             
             
             if(pass == 0) {
-                pass0out[idx0] = t0 * S0;
-                pass0out[idx4] = t1 * S1;
-                pass0out[idx2] = t2 * S2;
-                pass0out[idx6] = t3 * S3;
-                pass0out[idx5] = t4 * S4;
-                pass0out[idx1] = t5 * S5;
-                pass0out[idx7] = t6 * S6;
-                pass0out[idx3] = t7 * S7;
+                pass0out[idx0] = S0 * t0;
+                pass0out[idx1] = S1 * t5;
+                pass0out[idx2] = S2 * t2;
+                pass0out[idx3] = S3 * t7;
+                pass0out[idx4] = S4 * t1;
+                pass0out[idx5] = S5 * t4;
+                pass0out[idx6] = S6 * t3;
+                pass0out[idx7] = S7 * t6;
             } else {
-                y[idx0] = (int) (t0 * S0 + 0.5);
-                y[idx4] = (int) (t1 * S1 + 0.5);
-                y[idx2] = (int) (t2 * S2 + 0.5);
-                y[idx6] = (int) (t3 * S3 + 0.5);
-                y[idx5] = (int) (t4 * S4 + 0.5);
-                y[idx1] = (int) (t5 * S5 + 0.5);
-                y[idx7] = (int) (t6 * S6 + 0.5);
-                y[idx3] = (int) (t7 * S7 + 0.5);
+                y[idx0] = (int) (S0 * t0 + 0.5);
+                y[idx1] = (int) (S1 * t5 + 0.5);
+                y[idx2] = (int) (S2 * t2 + 0.5);
+                y[idx3] = (int) (S3 * t7 + 0.5);
+                y[idx4] = (int) (S4 * t1 + 0.5);
+                y[idx5] = (int) (S5 * t4 + 0.5);
+                y[idx6] = (int) (S6 * t3 + 0.5);
+                y[idx7] = (int) (S7 * t6 + 0.5);
             }
             
         }
