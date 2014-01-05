@@ -168,14 +168,14 @@ void AanDct(int* x, int* y) {
                 pass0out[idx7] = t6;
                 pass0out[idx3] = t7;
             } else {
-                y[idx0] = (int) (t0 * SCALEDC);
-                y[idx4] = (int) (t1 * SCALEAC);
-                y[idx2] = (int) (t2 * SCALEAC);
-                y[idx6] = (int) (t3 * SCALEAC);
-                y[idx5] = (int) (t4 * SCALEAC);
-                y[idx1] = (int) (t5 * SCALEAC);
-                y[idx7] = (int) (t6 * SCALEAC);
-                y[idx3] = (int) (t7 * SCALEAC);
+                y[idx0] = (int) (t0 * SCALEDC + 0.5);
+                y[idx4] = (int) (t1 * SCALEAC + 0.5);
+                y[idx2] = (int) (t2 * SCALEAC + 0.5);
+                y[idx6] = (int) (t3 * SCALEAC + 0.5);
+                y[idx5] = (int) (t4 * SCALEAC + 0.5);
+                y[idx1] = (int) (t5 * SCALEAC + 0.5);
+                y[idx7] = (int) (t6 * SCALEAC + 0.5);
+                y[idx3] = (int) (t7 * SCALEAC + 0.5);
             }
             
         }
