@@ -3,9 +3,9 @@
 # There should be no changes for most UNIX compilers.
 ###########################################################
 
-PFLAGS = -O
+PFLAGS = -O3 -pg -g
 DEFS = system.h globals.h marker.h
-BASELINE =  p64.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o y4m_input.o vidinput.o
+BASELINE =  p64.o codec.o huffman.o io.o aandct.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o y4m_input.o vidinput.o
 
 .c.o:
 	$(CC) $(PFLAGS) -I. -c $*.c
@@ -27,6 +27,7 @@ marker.o: marker.c $(DEFS) marker.h
 huffman.o: huffman.c $(DEFS) huffman.h
 init.o: init.c $(DEFS) ctables.h
 io.o: io.c $(DEFS) vidinput.h ogg/os_types.h
+aandct.o: aandct.c $(DEFS)
 chendct.o: chendct.c $(DEFS)
 lexer.o: lexer.c
 mem.o: mem.c 
@@ -38,8 +39,8 @@ transform.o: transform.c $(DEFS) dct.h
 vidinput.o: vidinput.c vidinput.h ogg/os_types.h
 y4m_input.o: y4m_input.c vidinput.h ogg/os_types.h
 
-lcheck: p64.ln codec.ln huffman.ln io.ln chendct.ln lexer.ln marker.ln me.ln mem.ln stat.ln stream.ln transform.ln
-	lint  p64.ln codec.ln huffman.ln io.ln chendct.ln lexer.ln marker.ln me.ln mem.ln stat.ln stream.ln transform.ln
+lcheck: p64.ln codec.ln huffman.ln io.ln aandct.ln chendct.ln lexer.ln marker.ln me.ln mem.ln stat.ln stream.ln transform.ln
+	lint  p64.ln codec.ln huffman.ln io.ln aandct.ln chendct.ln lexer.ln marker.ln me.ln mem.ln stat.ln stream.ln transform.ln
 
 
 #

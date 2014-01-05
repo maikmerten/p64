@@ -224,7 +224,7 @@ int TCoeffMType[] =   {1,1,1,1,0,1,1,0,1,1}; /* Transform coeff. coded */
 /* DCT Stuff */
 /* Functional Declarations */
 
-vFunc *UseDct = ChenDct;
+vFunc *UseDct = AanDct; //ChenDct;
 vFunc *UseIDct = ChenIDct;
 
 #define DefaultDct (*UseDct)

@@ -89,6 +89,10 @@ extern void ReadBlock();
 extern void WriteBlock();
 extern void PrintIob();
 
+/* aandct.c */
+extern void AanDct();
+extern void AanIDct();
+
 /* chendct.c */
 
 extern void ChenDct();
