@@ -160,6 +160,7 @@ void AanDct(int* x, int* y) {
             
             if(pass == 0) {
                 pass0out[idx0] = t0;
+                pass0out[idx4] = t1;
                 pass0out[idx2] = t2;
                 pass0out[idx6] = t3;
                 pass0out[idx5] = t4;
