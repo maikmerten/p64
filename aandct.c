@@ -28,8 +28,14 @@ extern void AanIDct();
 #define A4 1.30656296487638 // cos(pi*2/16)*sqrt(2)
 #define A5 0.382683432365090 // cos(pi*6/16)
 
-#define SCALEDC (1.0/8.0)
-#define SCALEAC (1.0/16.0)
+#define S0 0.353553390593274 // 1/(2*sqrt(2))
+#define S1 0.254897789552080 // 1/(4 * cos(1 * pi/16))
+#define S2 0.270598050073099 // 1/(4 * cos(2 * pi/16))
+#define S3 0.300672443467523 // 1/(4 * cos(3 * pi/16))
+#define S4 0.353553390593274 // 1/(4 * cos(4 * pi/16))
+#define S5 0.449988111568208 // 1/(4 * cos(5 * pi/16))
+#define S6 0.653281482438188 // 1/(4 * cos(6 * pi/16))
+#define S7 1.28145772387075  // 1/(4 * cos(7 * pi/16))
 
 /*START*/
 
@@ -159,23 +165,23 @@ void AanDct(int* x, int* y) {
             
             
             if(pass == 0) {
-                pass0out[idx0] = t0;
-                pass0out[idx4] = t1;
-                pass0out[idx2] = t2;
-                pass0out[idx6] = t3;
-                pass0out[idx5] = t4;
-                pass0out[idx1] = t5;
-                pass0out[idx7] = t6;
-                pass0out[idx3] = t7;
+                pass0out[idx0] = t0 * S0;
+                pass0out[idx4] = t1 * S1;
+                pass0out[idx2] = t2 * S2;
+                pass0out[idx6] = t3 * S3;
+                pass0out[idx5] = t4 * S4;
+                pass0out[idx1] = t5 * S5;
+                pass0out[idx7] = t6 * S6;
+                pass0out[idx3] = t7 * S7;
             } else {
-                y[idx0] = (int) (t0 * SCALEDC + 0.5);
-                y[idx4] = (int) (t1 * SCALEAC + 0.5);
-                y[idx2] = (int) (t2 * SCALEAC + 0.5);
-                y[idx6] = (int) (t3 * SCALEAC + 0.5);
-                y[idx5] = (int) (t4 * SCALEAC + 0.5);
-                y[idx1] = (int) (t5 * SCALEAC + 0.5);
-                y[idx7] = (int) (t6 * SCALEAC + 0.5);
-                y[idx3] = (int) (t7 * SCALEAC + 0.5);
+                y[idx0] = (int) (t0 * S0 + 0.5);
+                y[idx4] = (int) (t1 * S1 + 0.5);
+                y[idx2] = (int) (t2 * S2 + 0.5);
+                y[idx6] = (int) (t3 * S3 + 0.5);
+                y[idx5] = (int) (t4 * S4 + 0.5);
+                y[idx1] = (int) (t5 * S5 + 0.5);
+                y[idx7] = (int) (t6 * S6 + 0.5);
+                y[idx3] = (int) (t7 * S7 + 0.5);
             }
             
         }
