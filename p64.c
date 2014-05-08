@@ -1155,7 +1155,7 @@ int p64DecodeGOB()
       WHEREAMI();
       printf("Buffer Overflow: Current:%d  Number:%d\n",
 	     CurrentGOB, NumberGOB);
-      return;
+      return -1;
     }
   LastMBA = -1;               /* Reset the MBA and the other predictors  */
   LastMVDH = 0;
